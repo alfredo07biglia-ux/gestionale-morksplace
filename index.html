@@ -48,7 +48,7 @@ h1,h2{margin:0;font-weight:400}
 /* ---- Struttura ---- */
 .shell{display:grid;grid-template-columns:230px 1fr;gap:clamp(18px,3vw,44px);padding:30px var(--pad) 60px;align-items:start}
 .nav{display:flex;flex-direction:column;gap:8px;position:sticky;top:20px}
-.nav button{display:flex;align-items:center;gap:14px;min-height:52px;padding:0 18px;border-radius:12px;cursor:pointer;
+.nav button{display:flex;align-items:center;gap:14px;min-height:47px;padding:0 18px;border-radius:12px;cursor:pointer;
   background:transparent;border:1px solid transparent;color:var(--soft);font-weight:500;font-size:1.02rem;text-align:left}
 .nav button svg{width:22px;height:22px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .nav button.on{background:linear-gradient(145deg,rgba(40,60,98,.55),rgba(20,32,60,.6));border-color:var(--line);color:#fff;box-shadow:inset 0 1px 0 rgba(255,255,255,.07)}
@@ -96,7 +96,7 @@ input:focus,select:focus{outline:2px solid rgba(198,206,213,.55);outline-offset:
 input::placeholder{color:#7c879b}
 select option{background:#101a30;color:var(--ink)}
 label{display:block;font-size:.84rem;color:var(--muted);margin:0 0 6px}
-.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:18px}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:12px;margin-bottom:18px}
 
 /* ---- Tabella ---- */
 .tablewrap{overflow:hidden}
@@ -201,6 +201,15 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
 .btn.sm{min-height:44px;padding:0 16px}
 .btn.upl{display:inline-flex;align-items:center;cursor:pointer;position:relative}
 .btn.upl input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.chip.bad{border-color:rgba(224,100,91,.5);color:#ffb9b2;background:rgba(224,100,91,.12)}
+.stock{display:inline-flex;align-items:center;gap:8px}
+.stock .mini{width:40px;padding:0;font-size:1.2rem}
+.stock b{min-width:30px;text-align:center}
+.stock b.lowq{color:var(--warn)}
+.ingrow{display:grid;grid-template-columns:2fr 1fr 40px;gap:8px;margin-bottom:8px;align-items:center}
+.ingrow .mini{width:40px;padding:0}
+.ingrow.full{grid-template-columns:2fr 1fr 1fr 40px}
+.due-late{color:#ffb9b2}
 .hint-line{color:var(--muted);font-size:.9rem;margin:0 0 12px}
 #qrSheet{display:none}
 @media print{
@@ -237,8 +246,9 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
   .nav button svg{width:20px;height:20px}
   .two,.three{grid-template-columns:1fr}
   .cards3{grid-template-columns:1fr!important}
-  .nav{gap:0!important;padding-left:4px!important;padding-right:4px!important}
-  .nav button{min-width:0;padding:6px 0!important;font-size:.62rem!important}
+  .nav{gap:0!important;padding-left:4px!important;padding-right:4px!important;justify-content:flex-start!important;overflow-x:auto}
+  .nav button{min-width:62px;flex:0 0 auto!important;padding:6px 4px!important;font-size:.62rem!important}
+  .ingrow,.ingrow.full{grid-template-columns:1fr 1fr 40px}
   .toolbar select{min-width:0;width:100%}
 }
 @media (max-width:720px){
@@ -282,8 +292,14 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
     <button type="button" data-view="registro">
       <svg viewBox="0 0 24 24"><path d="M6 3.5h12v17H6z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span>Registro</span>
     </button>
+    <button type="button" data-view="menu">
+      <svg viewBox="0 0 24 24"><path d="M7 3h10l-5 8z"/><path d="M12 11v8M8 20h8"/></svg><span>Menu</span>
+    </button>
     <button type="button" data-view="magazzino">
-      <svg viewBox="0 0 24 24"><path d="M3.5 9.5 12 4l8.5 5.5V20h-17z"/><path d="M8 20v-6h8v6"/><path d="M8 11.5h8"/></svg><span class="full">Magazzino</span><span class="short">Magazz.</span>
+      <svg viewBox="0 0 24 24"><path d="M3.5 9.5 12 4l8.5 5.5V20h-17z"/><path d="M8 20v-6h8v6"/><path d="M8 11.5h8"/></svg><span class="full">Magazzino</span><span class="short">Magazz.</span><span class="badge" id="navLow"></span>
+    </button>
+    <button type="button" data-view="scadenze">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7.5"/><path d="M12 9v4.5l3 1.5M9 3h6"/></svg><span class="full">Scadenze</span><span class="short">Scad.</span><span class="badge" id="navDue"></span>
     </button>
     <button type="button" data-view="backup">
       <svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4.5 19.5h15"/></svg><span>Backup</span>
@@ -314,6 +330,10 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
       <div class="cards2">
         <div class="card pad"><h2>Ultimi acquisti</h2><div class="rows" id="lastList"></div></div>
         <div class="card pad"><h2>Per tipologia</h2><div class="rows" id="typeList"></div></div>
+      </div>
+      <div class="cards2">
+        <div class="card pad"><h2>Da riordinare</h2><div class="rows" id="homeLow"></div></div>
+        <div class="card pad"><h2>Scadenze</h2><div class="rows" id="homeDue"></div></div>
       </div>
       <p class="foot">I dati restano salvati su questo dispositivo. Fai un backup ogni tanto dalla sezione Backup.</p>
     </section>
@@ -442,8 +462,38 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
         <input id="q" type="search" placeholder="Cerca prodotto, fornitore, fattura…" aria-label="Cerca">
         <select id="fTip" aria-label="Filtra per tipologia"><option value="">Tutte le tipologie</option></select>
         <select id="fForn" aria-label="Filtra per fornitore"><option value="">Tutti i fornitori</option></select>
+        <select id="fStock" aria-label="Filtra per scorta"><option value="">Tutte le scorte</option><option value="low">Da riordinare</option></select>
       </div>
       <div id="list"></div>
+    </section>
+
+    <!-- MENU -->
+    <section class="view" id="v-menu">
+      <div class="head">
+        <div><h1>Menu</h1><p class="lead" id="menuLead"></p></div>
+        <div class="btns"><button type="button" class="btn" id="menuPrezzi">Prezzo ai drink senza prezzo</button><button type="button" class="btn primary" id="menuAdd">+ Aggiungi drink</button></div>
+      </div>
+      <div class="toolbar">
+        <label for="menuIva" style="margin:0">IVA inclusa nei prezzi (%)</label><input id="menuIva" inputmode="decimal" style="width:90px" placeholder="0">
+        <span class="muted" style="font-size:.9rem">Il margine toglie questa IVA dal prezzo. Chiedi al commercialista quale usare: finché è 0 il margine è più alto del reale.</span>
+      </div>
+      <div class="chips" id="menuCats" role="group" aria-label="Categorie"></div>
+      <div class="cards4 cards3">
+        <div class="card stat"><div class="big" id="mnPerc">—</div><div class="cap">margine medio della categoria</div></div>
+        <div class="card stat"><div class="big" id="mnN">0</div><div class="cap">drink in questa categoria</div></div>
+        <div class="card stat"><div class="big" id="mnInc">0</div><div class="cap">senza prezzo o con costo incompleto</div></div>
+      </div>
+      <div id="menuList"></div>
+      <p class="foot">Dosi e prodotti usati nelle ricette sono stime standard: tocca un drink per correggerli. Il costo usa il prezzo senza IVA di magazzino e il contenuto in ml di ogni prodotto.</p>
+    </section>
+
+    <!-- SCADENZE -->
+    <section class="view" id="v-scadenze">
+      <div class="head">
+        <div><h1>Scadenze</h1><p class="lead" id="dueLead"></p></div>
+        <button type="button" class="btn primary" id="dueAdd">+ Aggiungi scadenza</button>
+      </div>
+      <div id="dueList"></div>
     </section>
 
     <!-- BACKUP -->
@@ -454,7 +504,8 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
           <h2>Esporta</h2>
           <p>I dati sono solo su questo tablet. Se si cancellano i dati di Chrome o il tablet viene ripristinato, si perdono. Copia il file del backup su Google Drive, su un PC o su una chiavetta.</p>
           <div class="btns">
-            <button class="btn primary" id="btnExport" type="button">Esporta backup (.json)</button>
+            <button class="btn primary" id="btnShare" type="button">Salva su Drive / condividi</button>
+            <button class="btn" id="btnExport" type="button">Scarica backup (.json)</button>
             <button class="btn" id="btnCsv" type="button">Esporta tabella (.csv)</button>
           </div>
         </div>
@@ -463,7 +514,7 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
           <p>Importa un file di backup o un file di fatture preparato. Prodotti, prenotazioni e tessere già presenti non vengono duplicati.</p>
           <div class="btns">
             <button class="btn" id="btnImport" type="button">Importa file (.json)</button>
-            <input type="file" id="fileImport" accept=".json,application/json" hidden>
+            <input type="file" id="fileImport" accept=".json,.txt,application/json,text/plain" hidden>
           </div>
         </div>
       </div>
@@ -482,8 +533,10 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
       <div><label for="costoNetto">Costo senza IVA (€) *</label><input id="costoNetto" required inputmode="decimal" placeholder="0,00"></div>
       <div><label for="iva">IVA %</label><input id="iva" inputmode="decimal" value="22"></div>
       <div class="full"><label for="costoLordo">Costo con IVA (€) *</label><input id="costoLordo" required inputmode="decimal" placeholder="0,00"></div>
-      <div><label for="fornitore">Fornitore *</label><input id="fornitore" required list="dlForn" placeholder="Es. Spiritual srl"><datalist id="dlForn"></datalist></div>
+      <div><label for="fornitore">Fornitore</label><input id="fornitore" list="dlForn" placeholder="Es. Spiritual srl"><datalist id="dlForn"></datalist></div>
       <div><label for="provenienza">Provenienza del fornitore</label><input id="provenienza" placeholder="Es. Napoli (NA)"></div>
+      <div><label for="minimo">Scorta minima (avviso riordino)</label><input id="minimo" inputmode="decimal" placeholder="0"></div>
+      <div><label for="volumeMl">Contenuto (ml) per i margini</label><input id="volumeMl" inputmode="decimal" placeholder="Es. 700"></div>
       <div><label for="fattura">N. fattura</label><input id="fattura"></div>
       <div><label for="data">Data fattura</label><input id="data" type="date"></div>
     </div>
@@ -516,6 +569,44 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
     <div class="actions">
       <button type="button" class="btn danger left" id="rgDel" hidden>Elimina</button>
       <button type="button" class="btn" id="rgCancel">Annulla</button>
+      <button type="submit" class="btn primary">Salva</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgMenu">
+  <form class="dlg" id="mnFrm" method="dialog" autocomplete="off">
+    <h2 id="mnTitle">Nuovo drink</h2>
+    <div class="grid">
+      <div><label for="mnNome">Nome *</label><input id="mnNome" required></div>
+      <div><label for="mnCat">Categoria</label><select id="mnCat"></select></div>
+      <div class="full"><label for="mnPrezzo">Prezzo di vendita (€)</label><input id="mnPrezzo" inputmode="decimal" placeholder="Es. 8,00"></div>
+    </div>
+    <label style="margin-top:16px;font-size:.95rem;color:var(--soft)">Ricetta</label>
+    <div id="mnIng"></div>
+    <button type="button" class="btn" id="mnAddIng" style="margin-top:4px">+ Ingrediente</button>
+    <p class="foot" id="mnPrev" style="margin-top:14px"></p>
+    <div class="actions">
+      <button type="button" class="btn danger left" id="mnDel" hidden>Elimina</button>
+      <button type="button" class="btn" id="mnCancel">Annulla</button>
+      <button type="submit" class="btn primary">Salva</button>
+    </div>
+  </form>
+</dialog>
+
+<dialog id="dlgDue">
+  <form class="dlg" id="dueFrm" method="dialog" autocomplete="off">
+    <h2 id="dueTitle">Nuova scadenza</h2>
+    <div class="grid">
+      <div class="full"><label for="dsTit">Cosa scade *</label><input id="dsTit" required placeholder="Es. Pagamento fattura Garbero"></div>
+      <div><label for="dsData">Data *</label><input id="dsData" type="date" required></div>
+      <div><label for="dsTipo">Tipo</label><select id="dsTipo"><option>Fornitore</option><option>SIAE</option><option>ARCI e affiliazione</option><option>Tasse e contributi</option><option>Altro</option></select></div>
+      <div><label for="dsImp">Importo (€, facoltativo)</label><input id="dsImp" inputmode="decimal" placeholder="0,00"></div>
+      <div><label for="dsNota">Nota</label><input id="dsNota"></div>
+    </div>
+    <div class="actions">
+      <button type="button" class="btn danger left" id="dsDel" hidden>Elimina</button>
+      <button type="button" class="btn" id="dsCancel">Annulla</button>
       <button type="submit" class="btn primary">Salva</button>
     </div>
   </form>
@@ -557,8 +648,8 @@ function putMany(arr){ return tx('readwrite',function(s){ arr.forEach(function(o
 function delOne(id){ return tx('readwrite',function(s){return s.delete(id);}); }
 
 /* Dati del locale (prenotazioni, tavoli, soci…): una voce per chiave nello store "kv" */
-var mem={ books:[], members:[], tables:null, zones:null, poster:null, open:null, registro:[] };
-var KV={ books:'prenotazioni', members:'soci', tables:'tavoli', zones:'zone', poster:'locandina', open:'aperto', registro:'registro' };
+var mem={ books:[], members:[], tables:null, zones:null, poster:null, open:null, registro:[], menu:[], scadenze:[], imp:{ivaVendite:0} };
+var KV={ books:'prenotazioni', members:'soci', tables:'tavoli', zones:'zone', poster:'locandina', open:'aperto', registro:'registro', menu:'menu', scadenze:'scadenze', imp:'impostazioni' };
 function kvAll(){
   return new Promise(function(res,rej){
     var t=db.transaction('kv','readonly'), q=t.objectStore('kv').getAll();
@@ -623,17 +714,20 @@ function norm(o){
     fornitore: String(o.fornitore||'').trim(),
     provenienza: String(o.provenienza||'').trim(),
     fattura: String(o.fattura||'').trim(),
-    data: String(o.data||'').trim()
+    data: String(o.data||'').trim(),
+    minimo: num(o.minimo)||0,
+    volumeMl: num(o.volumeMl)||0
   };
   if(!n.costoLordo && n.costoNetto) n.costoLordo=r2(n.costoNetto*(1+n.iva/100));
   if(!n.costoNetto && n.costoLordo) n.costoNetto=r2(n.costoLordo/(1+n.iva/100));
   return n;
 }
+function isLow(i){ return (+i.minimo||0)>0&&(+i.quantita||0)<=(+i.minimo||0); }
 function dupKey(o){ return [o.fattura,o.nome,o.data,o.costoNetto].join('|').toLowerCase(); }
 function fmtDate(s){ if(!s) return ''; var p=s.split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s; }
 
 /* ---------- Navigazione ---------- */
-var VIEWS=['panoramica','prenotazioni','tavoli','evento','soci','registro','magazzino','backup'];
+var VIEWS=['panoramica','prenotazioni','tavoli','evento','soci','registro','menu','magazzino','scadenze','backup'];
 function show(v){
   if(VIEWS.indexOf(v)<0) v='panoramica';
   VIEWS.forEach(function(x){ $('v-'+x).classList.toggle('on',x===v); });
@@ -713,6 +807,7 @@ function renderMagazzino(){
   var rows=items.filter(function(i){
     if(ft && i.tipologia!==ft) return false;
     if(ff && i.fornitore!==ff) return false;
+    if($('fStock').value==='low' && !isLow(i)) return false;
     if(q){
       var hay=[i.nome,i.tipologia,i.fornitore,i.provenienza,i.fattura].join(' ').toLowerCase();
       if(hay.indexOf(q)<0) return false;
@@ -729,7 +824,7 @@ function renderMagazzino(){
     host.appendChild(c); return;
   }
   var wrap=el('div',{class:'card tablewrap'}), t=el('table'), thead=el('thead'), hr=el('tr');
-  [['Prodotto',''],['Tipologia',''],['Q.tà','num'],['Senza IVA','num'],['Con IVA','num'],['Fornitore','']].forEach(function(h){
+  [['Prodotto',''],['Tipologia',''],['Scorta','num'],['Senza IVA','num'],['Con IVA','num'],['Fornitore','']].forEach(function(h){
     hr.appendChild(el('th',h[1]?{class:h[1]}:null,h[0]));
   });
   thead.appendChild(hr); t.appendChild(thead);
@@ -741,7 +836,14 @@ function renderMagazzino(){
     if(meta) td.appendChild(el('span',{class:'sub'},meta));
     tr.appendChild(td);
     var tt=el('td',{'data-l':'Tipologia'}); tt.appendChild(el('span',{class:'tag'},i.tipologia)); tr.appendChild(tt);
-    tr.appendChild(el('td',{class:'num','data-l':'Q.tà'},fmtN(i.quantita)));
+    var ts=el('td',{class:'num','data-l':'Scorta'}), sb=el('div',{class:'stock'}), low=isLow(i);
+    function adj(dv){ return function(e){ e.stopPropagation(); i.quantita=Math.max(0,r2(i.quantita+dv)); putOne(i).then(loadAll).then(render); }; }
+    sb.appendChild(btn('mini','\u2212',adj(-1),{'aria-label':'Scarica uno'}));
+    sb.appendChild(el('b',{class:low?'lowq':''},fmtN(i.quantita)));
+    sb.appendChild(btn('mini','+',adj(1),{'aria-label':'Carica uno'}));
+    ts.appendChild(sb);
+    if(i.minimo) ts.appendChild(el('span',{class:'sub'},(low?'Da riordinare \u00b7 ':'')+'minimo '+fmtN(i.minimo)));
+    tr.appendChild(ts);
     tr.appendChild(el('td',{class:'num','data-l':'Senza IVA'},eur.format(i.costoNetto)));
     var tg=el('td',{class:'num','data-l':'Con IVA'},eur.format(i.costoLordo)); tg.appendChild(el('span',{class:'sub'},'IVA '+fmtN(i.iva)+'%')); tr.appendChild(tg);
     var tf=el('td',{'data-l':'Fornitore'}); tf.appendChild(document.createTextNode(i.fornitore));
@@ -767,6 +869,7 @@ function openForm(item){
   $('costoLordo').value=item?fmtN(v.costoLordo):'';
   $('fornitore').value=v.fornitore||''; $('provenienza').value=v.provenienza||'';
   $('fattura').value=v.fattura||''; $('data').value=v.data||'';
+  $('minimo').value=v.minimo?fmtN(v.minimo):''; $('volumeMl').value=v.volumeMl?fmtN(v.volumeMl):'';
   $('dlgProd').showModal();
 }
 function fromNet(){ var n=num($('costoNetto').value), i=num($('iva').value); if($('costoNetto').value!=='') $('costoLordo').value=fmtN(n*(1+i/100)); }
@@ -780,9 +883,10 @@ $('frm').addEventListener('submit',function(e){
   var o=norm({
     id:editingId, nome:$('nome').value, tipologia:$('tipologia').value, quantita:$('quantita').value,
     costoNetto:$('costoNetto').value, iva:$('iva').value, costoLordo:$('costoLordo').value,
-    fornitore:$('fornitore').value, provenienza:$('provenienza').value, fattura:$('fattura').value, data:$('data').value
+    fornitore:$('fornitore').value, provenienza:$('provenienza').value, fattura:$('fattura').value, data:$('data').value,
+    minimo:$('minimo').value, volumeMl:$('volumeMl').value
   });
-  if(!o.nome||!o.tipologia||!o.fornitore){ toast('Compila prodotto, tipologia e fornitore.'); return; }
+  if(!o.nome||!o.tipologia){ toast('Compila prodotto e tipologia.'); return; }
   putOne(o).then(loadAll).then(function(){ render(); $('dlgProd').close(); toast('Salvato.'); })
     .catch(function(){ toast('Errore nel salvataggio.'); });
 });
@@ -793,7 +897,7 @@ $('btnDel').addEventListener('click',function(){
   delOne(editingId).then(loadAll).then(function(){ render(); $('dlgProd').close(); toast('Eliminato.'); });
 });
 $('btnAdd').addEventListener('click',function(){ openForm(null); });
-['q','fTip','fForn'].forEach(function(id){ $(id).addEventListener('input',renderMagazzino); });
+['q','fTip','fForn','fStock'].forEach(function(id){ $(id).addEventListener('input',renderMagazzino); });
 
 /* ---------- Backup / import / export ---------- */
 function download(name,mime,text){
@@ -812,12 +916,28 @@ function updateBackupUI(){
   else if(days>=7){ w.textContent='L\'ultimo backup risale a '+days+' giorni fa. Esportane uno nuovo dalla sezione Backup.'; w.hidden=false; }
   else w.hidden=true;
 }
-$('btnExport').addEventListener('click',function(){
+function backupJson(){
   var payload={versione:2,esportato:new Date().toISOString(),prodotti:items};
   Object.keys(KV).forEach(function(n){ payload[KV[n]]=mem[n]; });
-  download('gestionale-backup-'+todayISO()+'.json','application/json',JSON.stringify(payload,null,2));
-  lsSet('ultimoBackup',todayISO()); updateBackupUI();
-  toast('Backup salvato nella cartella Download.');
+  return JSON.stringify(payload,null,2);
+}
+function backupDone(msg){ lsSet('ultimoBackup',todayISO()); updateBackupUI(); toast(msg); }
+$('btnExport').addEventListener('click',function(){
+  download('gestionale-backup-'+todayISO()+'.json','application/json',backupJson());
+  backupDone('Backup salvato nella cartella Download.');
+});
+$('btnShare').addEventListener('click',function(){
+  var json=backupJson(), name='gestionale-backup-'+todayISO()+'.json';
+  var tries=[new File([json],name,{type:'application/json'}),new File([json],name+'.txt',{type:'text/plain'})];
+  function attempt(i){
+    if(!navigator.share||!navigator.canShare||i>=tries.length){
+      download(name,'application/json',json); backupDone('Condivisione non disponibile: backup salvato nei Download.'); return;
+    }
+    if(!navigator.canShare({files:[tries[i]]})) return attempt(i+1);
+    navigator.share({files:[tries[i]],title:'Backup Gestionale Mork\'s Place'}).then(function(){ backupDone('Backup condiviso.'); })
+      .catch(function(e){ if(e&&e.name==='AbortError') return; attempt(i+1); });
+  }
+  attempt(0);
 });
 function csvCell(v){ var s=String(v==null?'':v); return /[;"\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
 $('btnCsv').addEventListener('click',function(){
@@ -840,9 +960,11 @@ $('fileImport').addEventListener('change',function(ev){
     var arr=Array.isArray(data)?data:(data&&data.prodotti);
     var hasKv=data&&!Array.isArray(data)&&Object.keys(KV).some(function(n){ return data[KV[n]]!==undefined; });
     if(!Array.isArray(arr)&&!hasKv){ toast('Il file non contiene dati riconosciuti.'); return; }
-    var add=[], skipped=0, msg=[];
+    var add=[], skipped=0, msg=[], replace=false;
     if(Array.isArray(arr)){
-      var have={}; items.forEach(function(i){ have[dupKey(i)]=1; });
+      replace=data&&data.sostituisciProdotti===true;
+      if(replace&&!confirm('Questo file SOSTITUISCE tutto il magazzino attuale ('+items.length+' prodotti) con '+arr.length+' prodotti. Continuare?')) return;
+      var have={}; if(!replace) items.forEach(function(i){ have[dupKey(i)]=1; });
       arr.forEach(function(o){
         if(!o||typeof o!=='object') return;
         var n=norm(o);
@@ -851,7 +973,7 @@ $('fileImport').addEventListener('change',function(ev){
         if(have[k]){ skipped++; return; }
         have[k]=1; add.push(n);
       });
-      msg.push(add.length+' prodotti'+(skipped?(' ('+skipped+' già presenti o non validi)'):''));
+      msg.push(add.length+' prodotti'+(replace?' (magazzino sostituito)':'')+(skipped?(' ('+skipped+' già presenti o non validi)'):''));
     }
     var saves=[];
     if(hasKv){
@@ -885,12 +1007,31 @@ $('fileImport').addEventListener('change',function(ev){
         if(nr) saves.push('registro');
         msg.push(nr+' righe di registro');
       }
+      if(Array.isArray(data[KV.menu])){
+        var mids={}, nmn=0; mem.menu.forEach(function(d){ mids[d.id]=1; });
+        data[KV.menu].forEach(function(d){
+          if(!d||!d.id||!d.nome||mids[d.id]) return; mids[d.id]=1; nmn++;
+          mem.menu.push({id:String(d.id),cat:String(d.cat||'Cocktail'),nome:String(d.nome),prezzo:num(d.prezzo),ing:Array.isArray(d.ing)?d.ing:[]});
+        });
+        if(nmn) saves.push('menu');
+        msg.push(nmn+' drink');
+      }
+      if(Array.isArray(data[KV.scadenze])){
+        var sids={}, nsc=0; mem.scadenze.forEach(function(s){ sids[s.id]=1; });
+        data[KV.scadenze].forEach(function(s){
+          if(!s||!s.id||!s.data||!s.titolo||sids[s.id]) return; sids[s.id]=1; nsc++;
+          mem.scadenze.push({id:String(s.id),titolo:String(s.titolo),data:String(s.data),tipo:String(s.tipo||'Altro'),importo:num(s.importo),nota:String(s.nota||''),fatto:!!s.fatto});
+        });
+        if(nsc) saves.push('scadenze');
+        msg.push(nsc+' scadenze');
+      }
+      if(data[KV.imp]&&typeof data[KV.imp]==='object'){ mem.imp={ivaVendite:Math.max(0,num(data[KV.imp].ivaVendite))}; saves.push('imp'); }
       if(Array.isArray(data[KV.tables])&&data[KV.tables].length){ mem.tables=data[KV.tables]; saves.push('tables'); msg.push('piantina dei tavoli'); }
       if(Array.isArray(data[KV.zones])&&data[KV.zones].length){ mem.zones=data[KV.zones]; saves.push('zones'); }
       if(data[KV.poster]&&data[KV.poster].img){ mem.poster=data[KV.poster]; saves.push('poster'); }
       if(typeof data[KV.open]==='boolean'){ mem.open=data[KV.open]; saves.push('open'); }
     }
-    Promise.all([putMany(add)].concat(saves.map(kvSave))).then(loadAll).then(function(){
+    (replace?tx('readwrite',function(s){ return s.clear(); }):Promise.resolve()).then(function(){ return Promise.all([putMany(add)].concat(saves.map(kvSave))); }).then(loadAll).then(function(){
       render(); toast('Importati: '+msg.join(', ')+'.');
     }).catch(function(){ toast('Errore durante l\'importazione.'); });
   };
@@ -953,6 +1094,9 @@ function renderLocale(){
   if(v==='evento') renderEvent();
   if(v==='soci') renderSoci();
   if(v==='registro') renderRegistro();
+  if(v==='menu') renderMenu();
+  if(v==='scadenze') renderScadenze();
+  renderHomeExtra();
 }
 window.renderLocale=renderLocale;
 Array.prototype.forEach.call(document.querySelectorAll('[data-go]'),function(b){ b.addEventListener('click',function(){ show(b.getAttribute('data-go')); }); });
@@ -1178,6 +1322,196 @@ floor.addEventListener('pointermove',function(e){
 });
 function endDrag(){ if(!drag) return; drag=null; kvSave('tables'); kvSave('zones'); renderTables(); }
 floor.addEventListener('pointerup',endDrag); floor.addEventListener('pointercancel',endDrag);
+
+
+/* ---- Panoramica: riordino e scadenze ---- */
+function dueState(s){
+  if(s.fatto) return 'fatto';
+  var d=Math.round((pd(s.data)-today12())/86400000);
+  return d<0?'scaduta':(d<=14?'vicina':'lontana');
+}
+function renderHomeExtra(){
+  var low=items.filter(isLow);
+  $('navLow').textContent=low.length||'';
+  var hl=clearEl($('homeLow'));
+  if(!items.length) hl.appendChild(el('div',{class:'muted'},'Il magazzino è ancora vuoto.'));
+  else if(!low.length) hl.appendChild(el('div',{class:'muted'},'Niente da riordinare. Imposta la scorta minima sui prodotti che vuoi tenere d\'occhio.'));
+  low.sort(function(a,b){ return a.nome.localeCompare(b.nome,'it'); }).slice(0,6).forEach(function(i){
+    var r=el('div',{class:'rowi'}), l=el('div',{class:'l'}); l.appendChild(el('b',null,i.nome));
+    l.appendChild(el('span',{class:'s'},'Restano '+fmtN(i.quantita)+' · minimo '+fmtN(i.minimo)));
+    r.appendChild(l); r.appendChild(el('span',{class:'chip'},'Da riordinare')); hl.appendChild(r);
+  });
+  var open=mem.scadenze.filter(function(s){ return !s.fatto; }).sort(function(a,b){ return a.data.localeCompare(b.data); });
+  var late=open.filter(function(s){ return dueState(s)==='scaduta'; }).length, soon=open.filter(function(s){ return dueState(s)==='vicina'; }).length;
+  $('navDue').textContent=(late+soon)||'';
+  var hd=clearEl($('homeDue'));
+  if(!open.length) hd.appendChild(el('div',{class:'muted'},'Nessuna scadenza in programma.'));
+  open.slice(0,5).forEach(function(s){
+    var st=dueState(s), r=el('div',{class:'rowi'}), l=el('div',{class:'l'}); l.appendChild(el('b',null,s.titolo));
+    l.appendChild(el('span',{class:'s'+(st==='scaduta'?' due-late':'')},(st==='scaduta'?'Scaduta il ':'')+fmtDate(s.data)+' · '+s.tipo));
+    r.appendChild(l); if(s.importo) r.appendChild(el('div',{class:'r'},eur.format(num(s.importo)))); hd.appendChild(r);
+  });
+}
+
+/* ---- Scadenze ---- */
+var ds={editId:null};
+function renderScadenze(){
+  var all=mem.scadenze.slice().sort(function(a,b){ return a.data.localeCompare(b.data); });
+  var open=all.filter(function(s){ return !s.fatto; }), done=all.filter(function(s){ return s.fatto; }).reverse();
+  var late=open.filter(function(s){ return dueState(s)==='scaduta'; }).length;
+  $('dueLead').textContent=open.length?(open.length+(open.length===1?' scadenza aperta':' scadenze aperte')+(late?(', '+late+' già scadute'):'')+'.'):'Nessuna scadenza aperta.';
+  var host=clearEl($('dueList'));
+  if(!all.length){ host.appendChild(el('div',{class:'card empty'},'Nessuna scadenza. Aggiungi pagamenti ai fornitori, SIAE, affiliazione ARCI, tasse.')); return; }
+  function block(title,list){
+    if(!list.length) return;
+    host.appendChild(el('h2',{style:'font-family:var(--serif);font-size:1.6rem;font-weight:400;margin:18px 0 10px'},title));
+    var card=el('div',{class:'card'}); host.appendChild(card);
+    list.forEach(function(s){
+      var st=dueState(s), row=el('div',{class:'item'}), l=el('div');
+      l.appendChild(el('b',null,s.titolo));
+      var sub=el('div'); sub.appendChild(el('small',{class:st==='scaduta'?'due-late':''},fmtDate(s.data)+' · '+s.tipo+(s.importo?' · '+eur.format(num(s.importo)):'')+(s.nota?' · '+s.nota:''))); l.appendChild(sub);
+      var acts=el('div',{class:'acts'});
+      if(st==='scaduta') acts.appendChild(el('span',{class:'chip bad'},'Scaduta'));
+      else if(st==='vicina') acts.appendChild(el('span',{class:'chip'},'Entro 14 giorni'));
+      acts.appendChild(btn('mini',s.fatto?'Riapri':'Fatto',function(){ s.fatto=!s.fatto; kvSave('scadenze'); renderLocale(); }));
+      acts.appendChild(btn('mini','Modifica',function(){ openDue(s); }));
+      row.appendChild(l); row.appendChild(acts); card.appendChild(row);
+    });
+  }
+  block('Da fare',open); block('Fatte',done);
+}
+function openDue(s){
+  ds.editId=s?s.id:null; $('dueTitle').textContent=s?'Modifica scadenza':'Nuova scadenza'; $('dsDel').hidden=!s;
+  $('dsTit').value=s?s.titolo:''; $('dsData').value=s?s.data:todayISO(); $('dsTipo').value=s?s.tipo:'Fornitore';
+  $('dsImp').value=s&&s.importo?fmtN(num(s.importo)):''; $('dsNota').value=s?(s.nota||''):''; $('dlgDue').showModal();
+}
+$('dueAdd').addEventListener('click',function(){ openDue(null); });
+$('dsCancel').addEventListener('click',function(){ $('dlgDue').close(); });
+$('dueFrm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var tit=$('dsTit').value.trim(); if(!tit||!$('dsData').value){ toast('Inserisci cosa scade e la data.'); return; }
+  var old=ds.editId?mem.scadenze.filter(function(x){ return x.id===ds.editId; })[0]:null;
+  var o={id:ds.editId||newId(),titolo:tit,data:$('dsData').value,tipo:$('dsTipo').value,importo:r2(num($('dsImp').value)),nota:$('dsNota').value.trim(),fatto:old?!!old.fatto:false};
+  if(old) mem.scadenze[mem.scadenze.indexOf(old)]=o; else mem.scadenze.push(o);
+  kvSave('scadenze'); $('dlgDue').close(); renderLocale(); toast('Salvato.');
+});
+$('dsDel').addEventListener('click',function(){
+  if(!ds.editId||!confirm('Eliminare questa scadenza?')) return;
+  mem.scadenze=mem.scadenze.filter(function(x){ return x.id!==ds.editId; }); kvSave('scadenze'); $('dlgDue').close(); renderLocale();
+});
+
+/* ---- Menu e margini ---- */
+var MENU_CATS=['Cocktail','Pestati','Long drink','Analcolici','Gin Tonic','Rum','Whisky','Vodka','Cognac e Pisco','Amari e Liquori','Vini'];
+var mn={cat:'Cocktail',editId:null};
+function prodById(id){ for(var i=0;i<items.length;i++) if(items[i].id===id) return items[i]; return null; }
+function ingCost(g){
+  if(g.pid){ var p=prodById(g.pid); if(!p||!p.volumeMl) return null; return p.costoNetto*num(g.ml)/p.volumeMl; }
+  if(g.eur===null||g.eur===undefined||g.eur==='') return null;
+  return num(g.eur);
+}
+function drinkCalc(d){
+  var tot=0, ok=true;
+  (d.ing||[]).forEach(function(g){ var c=ingCost(g); if(c===null) ok=false; else tot+=c; });
+  var iva=num(mem.imp.ivaVendite), pr=num(d.prezzo), net=pr?pr/(1+iva/100):0;
+  return {costo:tot,ok:ok,prezzo:pr,margine:pr?net-tot:null,perc:(pr&&net)?(net-tot)/net*100:null};
+}
+function ingLabel(g){ if(g.pid){ var p=prodById(g.pid); return p?p.nome:'(prodotto eliminato)'; } return g.nome||'?'; }
+function shortName(s){ return String(s).replace(/\s*(\d+[,.]?\d*\s*(cl|ml|l)\b|cl\s*\d+|conf\..*|bt\..*|brick.*)\s*$/i,'').replace(/\.\.\./g,'').trim(); }
+function percChip(v){
+  if(v===null) return el('span',{class:'muted'},'—');
+  return el('span',{class:'chip '+(v>=70?'ok2':(v>=50?'':'bad'))},fmtN(v)+'%');
+}
+function renderMenu(){
+  $('menuIva').value=mem.imp.ivaVendite?fmtN(mem.imp.ivaVendite):'';
+  var chips=clearEl($('menuCats'));
+  MENU_CATS.forEach(function(c){
+    var n=mem.menu.filter(function(d){ return d.cat===c; }).length;
+    var b=el('button',{type:'button',class:'dchip'+(c===mn.cat?' on':'')}); b.appendChild(el('b',null,c)); b.appendChild(el('small',null,n+(n===1?' drink':' drink')));
+    b.addEventListener('click',function(){ mn.cat=c; renderMenu(); }); chips.appendChild(b);
+  });
+  var list=mem.menu.filter(function(d){ return d.cat===mn.cat; }).sort(function(a,b){ return a.nome.localeCompare(b.nome,'it'); });
+  var sum=0,k=0,inc=0; list.forEach(function(d){ var c=drinkCalc(d); if(c.perc!==null&&c.ok){ sum+=c.perc; k++; } if(c.perc===null||!c.ok) inc++; });
+  $('mnPerc').textContent=k?fmtN(sum/k)+'%':'—'; $('mnN').textContent=String(list.length); $('mnInc').textContent=String(inc);
+  $('menuLead').textContent=mem.menu.length+' drink · prezzi, costi e margini in tempo reale dal magazzino.';
+  var host=clearEl($('menuList'));
+  if(!list.length){ host.appendChild(el('div',{class:'card empty'},mem.menu.length?'Nessun drink in questa categoria.':'Il menu è vuoto. Importa il file con il menu dalla sezione Backup oppure aggiungi un drink.')); return; }
+  var wrap=el('div',{class:'card tablewrap'}), t=el('table'), th=el('thead'), hr=el('tr');
+  [['Drink',''],['Prezzo','num'],['Costo','num'],['Margine €','num'],['Margine %','num']].forEach(function(c){ hr.appendChild(el('th',c[1]?{class:c[1]}:null,c[0])); });
+  th.appendChild(hr); t.appendChild(th); var tb=el('tbody');
+  list.forEach(function(d){
+    var c=drinkCalc(d), tr=el('tr',{class:'row'}), td=el('td',{'data-l':'Drink'});
+    td.appendChild(el('b',{style:'font-weight:600'},d.nome));
+    td.appendChild(el('span',{class:'sub'},(d.ing||[]).map(function(g){ return shortName(ingLabel(g)); }).join(', ')));
+    tr.appendChild(td);
+    tr.appendChild(el('td',{class:'num','data-l':'Prezzo'},c.prezzo?eur.format(c.prezzo):'da inserire'));
+    var tc=el('td',{class:'num','data-l':'Costo'},eur.format(c.costo)); if(!c.ok) tc.appendChild(el('span',{class:'sub'},'incompleto')); tr.appendChild(tc);
+    tr.appendChild(el('td',{class:'num','data-l':'Margine €'},c.margine===null?'—':eur.format(c.margine)));
+    var tp=el('td',{class:'num','data-l':'Margine %'}); tp.appendChild(percChip(c.perc)); tr.appendChild(tp);
+    tr.addEventListener('click',function(){ openMenu(d); }); tb.appendChild(tr);
+  });
+  t.appendChild(tb); wrap.appendChild(t); host.appendChild(wrap);
+}
+$('menuIva').addEventListener('change',function(){ mem.imp.ivaVendite=Math.max(0,num(this.value)); kvSave('imp'); renderMenu(); });
+$('menuPrezzi').addEventListener('click',function(){
+  var v=prompt('Prezzo in € da dare a tutti i drink senza prezzo della categoria "'+mn.cat+'":');
+  if(v===null) return; var n=num(v); if(!n){ toast('Prezzo non valido.'); return; }
+  var c=0; mem.menu.forEach(function(d){ if(d.cat===mn.cat&&!num(d.prezzo)){ d.prezzo=n; c++; } });
+  kvSave('menu'); renderMenu(); toast('Prezzo impostato su '+c+' drink.');
+});
+function prodOptions(sel){
+  var groups={}; items.forEach(function(p){ (groups[p.tipologia||'Altro']=groups[p.tipologia||'Altro']||[]).push(p); });
+  sel.appendChild(el('option',{value:''},'Altro (costo fisso)'));
+  Object.keys(groups).sort(function(a,b){ return a.localeCompare(b,'it'); }).forEach(function(g){
+    var og=el('optgroup',{label:g});
+    groups[g].sort(function(a,b){ return a.nome.localeCompare(b.nome,'it'); }).forEach(function(p){ og.appendChild(el('option',{value:p.id},p.nome)); });
+    sel.appendChild(og);
+  });
+}
+function addIngRow(g){
+  g=g||{pid:'',ml:'',eur:'',nome:''};
+  var row=el('div',{class:'ingrow'}), sel=el('select',{'aria-label':'Ingrediente'}); prodOptions(sel); sel.value=g.pid||'';
+  var nm=el('input',{placeholder:'Nome (es. Lime)',value:g.nome||''}), qty=el('input',{inputmode:'decimal'});
+  var del=btn('mini danger','×',function(){ row.remove(); mnPrev(); },{'aria-label':'Togli ingrediente'});
+  var left=el('div'); left.appendChild(sel); left.appendChild(nm); nm.style.marginTop='6px';
+  function sync(){
+    var isP=!!sel.value; nm.style.display=isP?'none':''; qty.placeholder=isP?'ml':'€'; qty.setAttribute('aria-label',isP?'Quantità in ml':'Costo in euro');
+  }
+  qty.value=g.pid?(g.ml?fmtN(num(g.ml)):''):((g.eur===null||g.eur===undefined||g.eur==='')?'':fmtN(num(g.eur)));
+  sel.addEventListener('change',function(){ sync(); mnPrev(); }); nm.addEventListener('input',mnPrev); qty.addEventListener('input',mnPrev);
+  row.appendChild(left); row.appendChild(qty); row.appendChild(del); row._get=function(){
+    if(sel.value) return {pid:sel.value,ml:num(qty.value)};
+    return {pid:'',nome:nm.value.trim()||'Altro',eur:qty.value.trim()===''?null:num(qty.value)};
+  };
+  sync(); $('mnIng').appendChild(row);
+}
+function mnCollect(){ return Array.prototype.map.call($('mnIng').children,function(r){ return r._get(); }); }
+function mnPrev(){
+  var c=drinkCalc({prezzo:$('mnPrezzo').value,ing:mnCollect()});
+  $('mnPrev').textContent='Costo '+eur.format(c.costo)+(c.ok?'':' (incompleto: manca un costo o il contenuto in ml)')+(c.margine===null?'':' · Margine '+eur.format(c.margine)+' ('+fmtN(c.perc)+'%)');
+}
+function openMenu(d){
+  mn.editId=d?d.id:null; $('mnTitle').textContent=d?'Modifica drink':'Nuovo drink'; $('mnDel').hidden=!d;
+  var cs=clearEl($('mnCat')); MENU_CATS.forEach(function(c){ cs.appendChild(el('option',{value:c},c)); }); cs.value=d?d.cat:mn.cat;
+  $('mnNome').value=d?d.nome:''; $('mnPrezzo').value=d&&num(d.prezzo)?fmtN(num(d.prezzo)):'';
+  clearEl($('mnIng')); (d&&d.ing&&d.ing.length?d.ing:[null]).forEach(function(g){ addIngRow(g||undefined); });
+  mnPrev(); $('dlgMenu').showModal();
+}
+$('menuAdd').addEventListener('click',function(){ openMenu(null); });
+$('mnAddIng').addEventListener('click',function(){ addIngRow(); });
+$('mnPrezzo').addEventListener('input',mnPrev);
+$('mnCancel').addEventListener('click',function(){ $('dlgMenu').close(); });
+$('mnFrm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var nome=$('mnNome').value.trim(); if(!nome){ toast('Inserisci il nome.'); return; }
+  var o={id:mn.editId||('d'+newId()),cat:$('mnCat').value,nome:nome,prezzo:r2(num($('mnPrezzo').value)),ing:mnCollect()};
+  var i=mem.menu.findIndex(function(x){ return x.id===o.id; });
+  if(i>-1) mem.menu[i]=o; else mem.menu.push(o);
+  mn.cat=o.cat; kvSave('menu'); $('dlgMenu').close(); renderMenu(); toast('Salvato.');
+});
+$('mnDel').addEventListener('click',function(){
+  if(!mn.editId||!confirm('Eliminare questo drink dal menu?')) return;
+  mem.menu=mem.menu.filter(function(x){ return x.id!==mn.editId; }); kvSave('menu'); $('dlgMenu').close(); renderMenu();
+});
 
 /* ---- Registro entrate e uscite ---- */
 var REG_IN=[['carte','Incassi Carte/Bancomat','rgCarte'],['contanti','Incassi Contanti','rgCont'],['tessere','Vendita Tessere','rgTess']];
