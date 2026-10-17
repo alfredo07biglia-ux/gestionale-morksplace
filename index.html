@@ -127,8 +127,97 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
   opacity:0;pointer-events:none;transition:opacity .2s;z-index:50;max-width:90vw;text-align:center}
 #toast.show{opacity:1}
 
+/* ---- Prenotazioni, tavoli, evento, soci ---- */
+.nav button .badge{margin-left:auto;min-width:22px;height:22px;padding:0 7px;border-radius:99px;background:var(--warn);color:#1a1205;font-size:.78rem;font-weight:600;display:inline-flex;align-items:center;justify-content:center}
+.nav button .badge:empty{display:none}
+.nav .short{display:none}
+.chips{display:flex;gap:10px;overflow-x:auto;padding:2px 0 14px;margin-bottom:6px;-webkit-overflow-scrolling:touch}
+.dchip{flex:none;min-height:60px;padding:8px 18px;border-radius:12px;cursor:pointer;text-align:left;background:rgba(255,255,255,.05);border:1px solid var(--line);color:var(--soft)}
+.dchip b{display:block;font-weight:600;color:var(--ink)}
+.dchip small{display:block;color:var(--muted);font-size:.8rem}
+.dchip.on{background:linear-gradient(145deg,rgba(60,86,132,.6),rgba(26,40,72,.7));border-color:rgba(255,255,255,.4)}
+.dchip.ev b::after{content:" ♪";color:var(--silver)}
+.seats{margin:4px 0 16px}
+.seats-top{display:flex;align-items:baseline;gap:10px;color:var(--soft)}
+.seats-top b{font-family:var(--serif);font-weight:400;font-size:2.4rem;line-height:1;color:var(--ink)}
+.seats-bar{height:8px;border-radius:99px;background:rgba(255,255,255,.09);margin-top:8px;overflow:hidden;max-width:420px}
+.seats-bar i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#8e9aae,#d4dbe4)}
+.seats.low .seats-bar i{background:var(--warn)} .seats.full .seats-bar i{background:var(--danger)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.seg button{min-height:44px;padding:0 16px;background:transparent;border:0;color:var(--soft);cursor:pointer}
+.seg button.on{background:rgba(255,255,255,.12);color:#fff}
+.pren-top{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;flex-wrap:wrap}
+.item{display:flex;justify-content:space-between;gap:14px;align-items:center;flex-wrap:wrap;padding:14px 18px;border-bottom:1px solid var(--line2)}
+.item:last-child{border-bottom:0}
+.item .acts{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.item small{color:var(--muted)}
+.item .over{color:var(--warn)}
+.chip{display:inline-block;padding:3px 12px;border-radius:99px;font-size:.84rem;border:1px solid rgba(227,165,74,.5);color:#f1dcb4;background:rgba(227,165,74,.12)}
+.chip.ok2{border-color:rgba(95,192,138,.5);color:#bfead2;background:rgba(95,192,138,.12)}
+.mini{min-height:44px;padding:0 14px;border-radius:10px;cursor:pointer;background:rgba(255,255,255,.06);border:1px solid var(--line);color:var(--ink);font-size:.92rem}
+.mini.wa{border-color:rgba(95,192,138,.55);color:#bfead2}
+.mini.danger{border-color:rgba(224,100,91,.5);color:#ffb9b2}
+.mini.armed{background:var(--danger);color:#fff}
+.tsel{min-height:44px;width:auto;max-width:190px;padding:0 10px}
+.toolbar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:14px}
+.toolbar select{width:auto;min-width:220px}
+.toolbar input{max-width:340px}
+.legend{display:inline-flex;gap:14px;color:var(--muted);font-size:.9rem}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:50%;margin-right:6px;vertical-align:-1px;border:2px solid rgba(207,212,219,.6);background:#1B2B3E}
+.legend i.b{background:linear-gradient(145deg,#e3e7ec,#9aa4b2)}
+.floor-wrap{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start}
+.floor{position:relative;aspect-ratio:16/10;border-radius:12px;border:1px solid var(--line);overflow:hidden;background-color:#0E1823;
+  background-image:linear-gradient(rgba(201,206,214,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(201,206,214,.05) 1px,transparent 1px);background-size:5% 8%}
+.zone{position:absolute;transform:translate(-50%,-50%);border:1px dashed rgba(207,212,219,.4);border-radius:8px;display:flex;align-items:center;justify-content:center;
+  color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;text-align:center}
+.zone.vert{writing-mode:vertical-rl}
+.tb{position:absolute;transform:translate(-50%,-50%);width:calc(var(--s)*1%);min-width:48px;aspect-ratio:1;border-radius:50%;background:#1B2B3E;border:2px solid rgba(207,212,219,.55);
+  color:var(--ink);font-weight:600;font-size:1.05rem;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;padding:0;line-height:1.1}
+.tb small{font-weight:400;font-size:.68rem;color:var(--muted)}
+.tb.sq{border-radius:12px} .tb.long{border-radius:12px;aspect-ratio:2.2/1;min-width:80px}
+.tb.busy{background:linear-gradient(145deg,#e3e7ec,#9aa4b2);color:#0b1220;border-color:#fff} .tb.busy small{color:#2a3446}
+.tb.sel{outline:3px solid rgba(255,255,255,.7);outline-offset:3px}
+.floor.edit .tb,.floor.edit .zone{cursor:grab;touch-action:none}
+.floor.edit .zone{pointer-events:auto}
+.tb.drag,.zone.drag{cursor:grabbing;opacity:.85}
+.qrbox{background:#fff;border-radius:10px;padding:10px;margin:14px auto 6px;width:190px}
+.qrbox svg{display:block;width:100%;height:auto}
+.qr-url{word-break:break-all;color:var(--muted);font-size:.78rem;text-align:center;margin:0 0 6px}
+.pthumb{min-height:120px;border:1px dashed var(--line);border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;overflow:hidden;color:var(--muted)}
+.pthumb img{max-width:100%;max-height:420px;display:block}
+.err{color:#ffb9b2;min-height:1.2em;margin:8px 0 0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:12px}
+.three{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:12px}
+.panelbox{padding:20px 22px;margin-bottom:18px}
+.panelbox h3{font-family:var(--serif);font-weight:400;font-size:1.6rem;margin:0 0 10px}
+.panelbox p{margin:0 0 12px;color:var(--soft)}
+.switch-card{display:flex;align-items:center;gap:14px;color:var(--soft)}
+.switch{position:relative;width:62px;height:34px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.1);cursor:pointer;padding:0}
+.switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#cfd6df;transition:transform .2s}
+.switch[aria-checked="true"]{background:rgba(95,192,138,.45)} .switch[aria-checked="true"]::after{transform:translateX(28px);background:#fff}
+.stat.link{cursor:pointer;text-align:left;color:inherit}
+.stat.alert .big{color:var(--warn)}
+.btn.sm{min-height:44px;padding:0 16px}
+.btn.upl{display:inline-flex;align-items:center;cursor:pointer;position:relative}
+.btn.upl input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.hint-line{color:var(--muted);font-size:.9rem;margin:0 0 12px}
+#qrSheet{display:none}
+@media print{
+  @page{size:A4;margin:12mm}
+  body{background:#fff!important;color:#000!important}
+  body>*:not(#qrSheet){display:none!important}
+  #qrSheet{display:grid!important;grid-template-columns:1fr 1fr;gap:10mm}
+  .qcard{break-inside:avoid;border:1px solid #bbb;border-radius:6mm;padding:8mm;text-align:center;background:#0B131D;color:#fff;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .qcard img.lg{height:14mm;width:auto;margin:0 auto 5mm;display:block}
+  .qcard b{display:block;font-family:var(--serif);font-weight:400;font-size:20pt;margin-bottom:4mm}
+  .qcard .qw{background:#fff;padding:3mm;border-radius:3mm;width:52mm;margin:0 auto}
+  .qcard .qw svg{display:block;width:100%;height:auto}
+  .qcard small{display:block;margin-top:4mm;font-size:9pt;color:#cfd4db}
+}
+
 /* ---- Tablet verticale e telefono ---- */
 @media (max-width:1000px){
+  .floor-wrap{grid-template-columns:1fr}
   .cards4{grid-template-columns:1fr 1fr}
 }
 @media (max-width:860px){
@@ -141,6 +230,12 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
   .filters{grid-template-columns:1fr}
   .pill .t{display:none}
   .pill{padding:0 14px}
+  .nav .full{display:none} .nav .short{display:inline}
+  .nav button .badge{position:absolute;top:2px;right:8px;margin:0;min-width:18px;height:18px;font-size:.7rem}
+  .nav button{position:relative;font-size:.68rem!important}
+  .nav button svg{width:20px;height:20px}
+  .two,.three{grid-template-columns:1fr}
+  .toolbar select{min-width:0;width:100%}
 }
 @media (max-width:720px){
   .grid{grid-template-columns:1fr}
@@ -168,6 +263,18 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
     <button type="button" data-view="panoramica" class="on">
       <svg viewBox="0 0 24 24"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.8V20h13V9.8"/></svg><span>Panoramica</span>
     </button>
+    <button type="button" data-view="prenotazioni">
+      <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span class="full">Prenotazioni</span><span class="short">Prenota</span><span class="badge" id="navPend"></span>
+    </button>
+    <button type="button" data-view="tavoli">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span class="full">Tavoli e QR</span><span class="short">Tavoli</span>
+    </button>
+    <button type="button" data-view="evento">
+      <svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><span class="full">Evento del mese</span><span class="short">Evento</span>
+    </button>
+    <button type="button" data-view="soci">
+      <svg viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="2"/><circle cx="9" cy="11.5" r="2"/><path d="M13.5 10.5h4M13.5 13.5h3M6 16c.6-1.4 1.7-2 3-2s2.400.6 3 2"/></svg><span class="full">Tessere soci</span><span class="short">Soci</span>
+    </button>
     <button type="button" data-view="magazzino">
       <svg viewBox="0 0 24 24"><path d="M3.5 9.5 12 4l8.5 5.5V20h-17z"/><path d="M8 20v-6h8v6"/><path d="M8 11.5h8"/></svg><span>Magazzino</span>
     </button>
@@ -181,7 +288,16 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
 
     <!-- PANORAMICA -->
     <section class="view on" id="v-panoramica">
-      <div class="head"><div><h1>Panoramica</h1><p class="lead" id="lead"></p></div></div>
+      <div class="head"><div><h1>Panoramica</h1><p class="lead" id="lead"></p></div>
+        <div class="switch-card"><span id="openLabel">Chiuso stasera</span><button type="button" class="switch" id="openSwitch" role="switch" aria-checked="false" aria-label="Locale aperto stasera"></button></div>
+      </div>
+      <div class="cards4">
+        <button type="button" class="card stat link" data-go="prenotazioni"><div class="big" id="sPending">0</div><div class="cap">prenotazioni da confermare</div></button>
+        <button type="button" class="card stat link" data-go="prenotazioni"><div class="big" id="sNight">35</div><div class="cap" id="sNightLbl">posti liberi alla prossima serata</div></button>
+        <button type="button" class="card stat link" data-go="evento"><div class="big" id="sEvent">50</div><div class="cap" id="sEventLbl">posti liberi al concerto</div></button>
+        <button type="button" class="card stat link" data-go="soci"><div class="big" id="sSoci">0</div><div class="cap">tessere soci</div></button>
+      </div>
+      <div class="card panelbox"><h3 id="homeNightTitle">Prossima serata</h3><div id="homeNight"></div></div>
       <div class="cards4">
         <div class="card stat"><div class="big" id="stN">0</div><div class="cap">prodotti in magazzino</div></div>
         <div class="card stat"><div class="big" id="stNet">€ 0,00</div><div class="cap">valore senza IVA</div></div>
@@ -193,6 +309,104 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
         <div class="card pad"><h2>Per tipologia</h2><div class="rows" id="typeList"></div></div>
       </div>
       <p class="foot">I dati restano salvati su questo dispositivo. Fai un backup ogni tanto dalla sezione Backup.</p>
+    </section>
+
+    <!-- PRENOTAZIONI -->
+    <section class="view" id="v-prenotazioni">
+      <div class="head">
+        <div><h1>Prenotazioni</h1><p class="lead">Martedì e giovedì massimo 35 posti, concerto massimo 50.</p></div>
+        <button type="button" class="btn primary" id="manToggle">+ Nuova prenotazione</button>
+      </div>
+      <div class="card panelbox" id="manBox" hidden>
+        <h3>Nuova prenotazione</h3>
+        <p>Per chi prenota al telefono o di persona. Entra già confermata e scala i posti.</p>
+        <form id="manForm" novalidate autocomplete="off">
+          <div class="two">
+            <div><label for="manType">Tipo</label><select id="manType"><option value="tavolo">Serata al bancone (max 35)</option><option value="evento">Concerto del secondo venerdì (max 50)</option></select></div>
+            <div><label for="manDate">Data</label><select id="manDate"></select></div>
+          </div>
+          <div class="seats" id="manSeats"></div>
+          <div class="two">
+            <div><label for="manName">Nome e cognome *</label><input id="manName"></div>
+            <div><label for="manPhone">Telefono (per WhatsApp)</label><input id="manPhone" type="tel" inputmode="tel"></div>
+          </div>
+          <div class="three">
+            <div><label for="manPeople">Persone *</label><input id="manPeople" inputmode="numeric" value="2"></div>
+            <div><label for="manCard">Numero tessera ARCI *</label><input id="manCard" placeholder="Tra le tessere soci"></div>
+            <div><label for="manTable">Tavolo (facoltativo)</label><select id="manTable"></select></div>
+          </div>
+          <p class="err" id="manErr" role="alert"></p>
+          <div class="btns"><button class="btn primary" type="submit">Aggiungi la prenotazione</button><button class="btn" type="button" id="manCancel">Annulla</button></div>
+        </form>
+      </div>
+      <div class="chips" id="dateChips" role="group" aria-label="Serate"></div>
+      <div class="pren-top">
+        <div class="seats" id="prenSeats"></div>
+        <div class="seg" role="group" aria-label="Filtro"><button type="button" data-filter="all" class="on">Tutte</button><button type="button" data-filter="attesa">Da confermare</button></div>
+      </div>
+      <div class="card" id="bookList"></div>
+    </section>
+
+    <!-- TAVOLI E QR -->
+    <section class="view" id="v-tavoli">
+      <div class="head">
+        <div><h1>Tavoli e QR</h1><p class="lead" id="seatTotal"></p></div>
+        <div class="btns">
+          <button type="button" class="btn" id="layoutToggle">Sposta i tavoli</button>
+          <button type="button" class="btn" id="addTable">+ Tavolo</button>
+          <button type="button" class="btn primary" id="printQr">Stampa i QR</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <label for="floorDate" style="margin:0">Serata</label><select id="floorDate"></select>
+        <span class="legend"><span><i></i>Libero</span><span><i class="b"></i>Occupato</span></span>
+      </div>
+      <p class="hint-line" id="editHint" hidden>Trascina tavoli, bancone, palco e ingresso dove stanno davvero nel locale.</p>
+      <div class="floor-wrap">
+        <div class="floor" id="floor" aria-label="Piantina del locale"></div>
+        <aside class="card panelbox" id="tside" aria-live="polite"></aside>
+      </div>
+      <div class="card panelbox" style="margin-top:18px">
+        <h3>Dove portano i QR</h3>
+        <p>Ogni QR contiene l'indirizzo che scrivi qui, seguito dal numero del tavolo. Scrivilo prima di stampare.</p>
+        <div style="max-width:520px"><label for="qrBase">Indirizzo</label><input id="qrBase" type="url" inputmode="url" placeholder="https://www.indirizzo-del-sito.it"></div>
+        <p class="hint-line" id="qrBaseHint" style="margin-top:10px"></p>
+      </div>
+    </section>
+
+    <!-- EVENTO DEL MESE -->
+    <section class="view" id="v-evento">
+      <div class="head"><div><h1>Evento del mese</h1><p class="lead">Musica dal vivo il secondo venerdì di ogni mese.</p></div></div>
+      <div class="cards2">
+        <div class="card pad">
+          <h2>Locandina</h2>
+          <p id="ownEv"></p>
+          <div class="pthumb" id="pThumb"></div>
+          <div class="btns">
+            <label class="btn upl"><span id="pLabel">Carica la locandina</span><input type="file" id="pFile" accept="image/*"></label>
+            <button class="btn" type="button" id="pDel">Togli la locandina</button>
+          </div>
+          <p class="err" id="pErr" role="alert"></p>
+        </div>
+        <div class="card pad"><h2>Posti ai prossimi concerti</h2><div class="rows" id="evSeats"></div></div>
+      </div>
+    </section>
+
+    <!-- TESSERE SOCI -->
+    <section class="view" id="v-soci">
+      <div class="head"><div><h1>Tessere soci</h1><p class="lead">Si prenota solo con una tessera presente in questo elenco.</p></div></div>
+      <div class="card panelbox">
+        <form id="memberForm" novalidate autocomplete="off">
+          <div class="two">
+            <div><label for="mCard">Numero tessera</label><input id="mCard" placeholder="Numero stampato sulla tessera"></div>
+            <div><label for="mName">Nome del socio (facoltativo)</label><input id="mName"></div>
+          </div>
+          <p class="err" id="memberErr" role="alert"></p>
+          <button class="btn primary" type="submit">Aggiungi la tessera</button>
+        </form>
+      </div>
+      <div class="toolbar"><input type="search" id="memQ" placeholder="Cerca numero o nome" aria-label="Cerca tra le tessere"><span class="muted" id="memCount"></span></div>
+      <div class="card" id="memberList"></div>
     </section>
 
     <!-- MAGAZZINO -->
@@ -223,7 +437,7 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
         </div>
         <div class="card pad">
           <h2>Importa</h2>
-          <p>Importa un file di backup o un file di fatture preparato. I prodotti già presenti non vengono duplicati.</p>
+          <p>Importa un file di backup o un file di fatture preparato. Prodotti, prenotazioni e tessere già presenti non vengono duplicati.</p>
           <div class="btns">
             <button class="btn" id="btnImport" type="button">Importa file (.json)</button>
             <input type="file" id="fileImport" accept=".json,application/json" hidden>
@@ -258,8 +472,12 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
   </form>
 </dialog>
 
+<div id="qrSheet" aria-hidden="true"></div>
+<dialog id="dlgSheet"><div class="dlg"><h2 id="sheetTitle"></h2><div id="sheetBody"></div><div class="actions"><button type="button" class="btn" id="sheetClose">Chiudi</button></div></div></dialog>
+
 <div id="toast" role="status"></div>
 
+<script src="qrcode.js"></script>
 <script>
 (function(){
 'use strict';
@@ -269,8 +487,12 @@ var DB_NAME='magazzino', STORE='prodotti', db=null, items=[];
 
 function openDB(){
   return new Promise(function(res,rej){
-    var r=indexedDB.open(DB_NAME,1);
-    r.onupgradeneeded=function(){ r.result.createObjectStore(STORE,{keyPath:'id'}); };
+    var r=indexedDB.open(DB_NAME,2);
+    r.onupgradeneeded=function(){
+      var d=r.result;
+      if(!d.objectStoreNames.contains(STORE)) d.createObjectStore(STORE,{keyPath:'id'});
+      if(!d.objectStoreNames.contains('kv')) d.createObjectStore('kv',{keyPath:'k'});
+    };
     r.onsuccess=function(){ res(r.result); };
     r.onerror=function(){ rej(r.error); };
   });
@@ -286,6 +508,39 @@ function loadAll(){ return tx('readonly',function(s){return s.getAll();}).then(f
 function putOne(o){ return tx('readwrite',function(s){return s.put(o);}); }
 function putMany(arr){ return tx('readwrite',function(s){ arr.forEach(function(o){s.put(o);}); }); }
 function delOne(id){ return tx('readwrite',function(s){return s.delete(id);}); }
+
+/* Dati del locale (prenotazioni, tavoli, soci…): una voce per chiave nello store "kv" */
+var mem={ books:[], members:[], tables:null, zones:null, qrBase:'', poster:null, open:null };
+var KV={ books:'prenotazioni', members:'soci', tables:'tavoli', zones:'zone', qrBase:'qrBase', poster:'locandina', open:'aperto' };
+function kvAll(){
+  return new Promise(function(res,rej){
+    var t=db.transaction('kv','readonly'), q=t.objectStore('kv').getAll();
+    t.oncomplete=function(){ res(q.result||[]); }; t.onerror=t.onabort=function(){ rej(t.error); };
+  });
+}
+function kvSave(name){
+  return new Promise(function(res,rej){
+    var t=db.transaction('kv','readwrite');
+    t.objectStore('kv').put({k:KV[name],v:mem[name]});
+    t.oncomplete=function(){ res(); }; t.onerror=t.onabort=function(){ rej(t.error); };
+  }).catch(function(){ toast('Errore nel salvataggio.'); });
+}
+function kvLoad(){
+  return kvAll().then(function(rows){
+    var by={}; rows.forEach(function(r){ by[r.k]=r.v; });
+    Object.keys(KV).forEach(function(n){ if(by[KV[n]]!==undefined) mem[n]=by[KV[n]]; });
+    if(!mem.tables) mem.tables=defaultTables();
+    if(!mem.zones) mem.zones=defaultZones();
+  });
+}
+function defaultTables(){
+  var pos=[[22,30],[38,30],[54,30],[70,30],[22,58],[38,58],[54,58],[70,58],[46,84]], out=[];
+  pos.forEach(function(p,i){ out.push({id:'t'+(i+1),n:i+1,seats:i===8?3:4,shape:'tondo',x:p[0],y:p[1]}); });
+  return out;
+}
+function defaultZones(){
+  return [{id:'bancone',label:'Bancone',x:90,y:46,w:9,h:64},{id:'palco',label:'Palco',x:12,y:16,w:18,h:22},{id:'ingresso',label:'Ingresso',x:12,y:93,w:16,h:9}];
+}
 
 /* ---------- Utilità ---------- */
 var $=function(id){return document.getElementById(id);};
@@ -331,13 +586,14 @@ function dupKey(o){ return [o.fattura,o.nome,o.data,o.costoNetto].join('|').toLo
 function fmtDate(s){ if(!s) return ''; var p=s.split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s; }
 
 /* ---------- Navigazione ---------- */
-var VIEWS=['panoramica','magazzino','backup'];
+var VIEWS=['panoramica','prenotazioni','tavoli','evento','soci','magazzino','backup'];
 function show(v){
   if(VIEWS.indexOf(v)<0) v='panoramica';
   VIEWS.forEach(function(x){ $('v-'+x).classList.toggle('on',x===v); });
   Array.prototype.forEach.call(document.querySelectorAll('.nav button'),function(b){ b.classList.toggle('on',b.getAttribute('data-view')===v); });
   try{ history.replaceState(null,'','#'+v); }catch(e){}
   window.scrollTo(0,0);
+  if(window.renderLocale) window.renderLocale();
 }
 Array.prototype.forEach.call(document.querySelectorAll('.nav button'),function(b){
   b.addEventListener('click',function(){ show(b.getAttribute('data-view')); });
@@ -449,7 +705,7 @@ function renderMagazzino(){
   });
   t.appendChild(tb); wrap.appendChild(t); host.appendChild(wrap);
 }
-function render(){ renderPanoramica(); renderMagazzino(); updateBackupUI(); }
+function render(){ renderPanoramica(); renderMagazzino(); updateBackupUI(); if(window.renderLocale) window.renderLocale(); }
 
 /* ---------- Form prodotto ---------- */
 var editingId=null;
@@ -504,14 +760,15 @@ function updateBackupUI(){
   $('lastBackup').textContent=d?('Ultimo backup: '+fmtDate(d)+'.'):'Nessun backup ancora fatto da questo tablet.';
   dot.className='dot'+(d===null?' warn':(days>=7?' warn':' ok'));
   txt.textContent=d===null?'Nessun backup':('Backup: '+fmtDate(d));
-  if(!items.length){ w.hidden=true; return; }
+  if(!items.length&&!mem.books.length&&!mem.members.length){ w.hidden=true; return; }
   if(d===null){ w.textContent='Nessun backup fatto. Apri la sezione Backup ed esporta una copia dei dati.'; w.hidden=false; }
   else if(days>=7){ w.textContent='L\'ultimo backup risale a '+days+' giorni fa. Esportane uno nuovo dalla sezione Backup.'; w.hidden=false; }
   else w.hidden=true;
 }
 $('btnExport').addEventListener('click',function(){
-  var payload={versione:1,esportato:new Date().toISOString(),prodotti:items};
-  download('magazzino-backup-'+todayISO()+'.json','application/json',JSON.stringify(payload,null,2));
+  var payload={versione:2,esportato:new Date().toISOString(),prodotti:items};
+  Object.keys(KV).forEach(function(n){ payload[KV[n]]=mem[n]; });
+  download('gestionale-backup-'+todayISO()+'.json','application/json',JSON.stringify(payload,null,2));
   lsSet('ultimoBackup',todayISO()); updateBackupUI();
   toast('Backup salvato nella cartella Download.');
 });
@@ -534,29 +791,445 @@ $('fileImport').addEventListener('change',function(ev){
     var data;
     try{ data=JSON.parse(rd.result); }catch(e){ toast('File non valido.'); return; }
     var arr=Array.isArray(data)?data:(data&&data.prodotti);
-    if(!Array.isArray(arr)){ toast('Il file non contiene prodotti.'); return; }
-    var have={}; items.forEach(function(i){ have[dupKey(i)]=1; });
-    var add=[], skipped=0;
-    arr.forEach(function(o){
-      if(!o||typeof o!=='object') return;
-      var n=norm(o);
-      if(!n.nome){ skipped++; return; }
-      var k=dupKey(n);
-      if(have[k]){ skipped++; return; }
-      have[k]=1; add.push(n);
-    });
-    putMany(add).then(loadAll).then(function(){
-      render();
-      toast('Importati '+add.length+' prodotti'+(skipped?(' ('+skipped+' già presenti o non validi)'):'')+'.');
+    var hasKv=data&&!Array.isArray(data)&&Object.keys(KV).some(function(n){ return data[KV[n]]!==undefined; });
+    if(!Array.isArray(arr)&&!hasKv){ toast('Il file non contiene dati riconosciuti.'); return; }
+    var add=[], skipped=0, msg=[];
+    if(Array.isArray(arr)){
+      var have={}; items.forEach(function(i){ have[dupKey(i)]=1; });
+      arr.forEach(function(o){
+        if(!o||typeof o!=='object') return;
+        var n=norm(o);
+        if(!n.nome){ skipped++; return; }
+        var k=dupKey(n);
+        if(have[k]){ skipped++; return; }
+        have[k]=1; add.push(n);
+      });
+      msg.push(add.length+' prodotti'+(skipped?(' ('+skipped+' già presenti o non validi)'):''));
+    }
+    var saves=[];
+    if(hasKv){
+      var nb=0, nm=0;
+      if(Array.isArray(data[KV.books])){
+        var ids={}; mem.books.forEach(function(b){ ids[b.id]=1; });
+        data[KV.books].forEach(function(b){
+          if(!b||!b.id||!b.date||!b.name||ids[b.id]) return;
+          ids[b.id]=1; nb++;
+          mem.books.push({id:String(b.id),type:b.type==='evento'?'evento':'tavolo',card:normCard(b.card),name:String(b.name),phone:String(b.phone||''),date:String(b.date),
+            people:String(parseInt(b.people,10)||1),note:String(b.note||''),status:b.status==='confermata'?'confermata':'attesa',table:b.table||null});
+        });
+        if(nb) saves.push('books');
+        msg.push(nb+' prenotazioni');
+      }
+      if(Array.isArray(data[KV.members])){
+        data[KV.members].forEach(function(m){
+          if(!m||normCard(m.card).length<4||isMember(m.card)) return;
+          mem.members.push({card:normCard(m.card),name:String(m.name||'')}); nm++;
+        });
+        if(nm) saves.push('members');
+        msg.push(nm+' tessere');
+      }
+      if(Array.isArray(data[KV.tables])&&data[KV.tables].length){ mem.tables=data[KV.tables]; saves.push('tables'); msg.push('piantina dei tavoli'); }
+      if(Array.isArray(data[KV.zones])&&data[KV.zones].length){ mem.zones=data[KV.zones]; saves.push('zones'); }
+      if(typeof data[KV.qrBase]==='string'){ mem.qrBase=data[KV.qrBase]; saves.push('qrBase'); }
+      if(data[KV.poster]&&data[KV.poster].img){ mem.poster=data[KV.poster]; saves.push('poster'); }
+      if(typeof data[KV.open]==='boolean'){ mem.open=data[KV.open]; saves.push('open'); }
+    }
+    Promise.all([putMany(add)].concat(saves.map(kvSave))).then(loadAll).then(function(){
+      render(); toast('Importati: '+msg.join(', ')+'.');
     }).catch(function(){ toast('Errore durante l\'importazione.'); });
   };
   rd.readAsText(f);
 });
 
+/* =====================================================================
+   LOCALE: prenotazioni, tavoli e QR, evento del mese, tessere soci
+   ===================================================================== */
+var DAYS=['domenica','lunedì','martedì','mercoledì','giovedì','venerdì','sabato'];
+var MONTHS=['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+var MONTHS_FULL=['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+var CAP={tavolo:35,evento:50};
+function isoD(d){ return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2); }
+function today12(){ var n=new Date(); return new Date(n.getFullYear(),n.getMonth(),n.getDate(),12); }
+function pd(s){ var p=s.split('-'); return new Date(+p[0],+p[1]-1,+p[2],12); }
+function secondFriday(y,m){ var d=new Date(y,m,1,12); return new Date(y,m,1+((5-d.getDay()+7)%7)+7,12); }
+function nextEvent(){ var t=today12(), sf=secondFriday(t.getFullYear(),t.getMonth()); return sf>=t?sf:secondFriday(t.getFullYear(),t.getMonth()+1); }
+function eventAfter(d){ return secondFriday(d.getFullYear(),d.getMonth()+1); }
+function isEventDay(d){ return isoD(d)===isoD(secondFriday(d.getFullYear(),d.getMonth())); }
+function upcomingNights(n){ var out=[], d=today12(); for(var i=0;i<90&&out.length<n;i++){ if(d.getDay()===2||d.getDay()===4) out.push(new Date(d)); d.setDate(d.getDate()+1); } return out; }
+function longDate(d){ var s=DAYS[d.getDay()]+' '+d.getDate()+' '+MONTHS_FULL[d.getMonth()]; return s.charAt(0).toUpperCase()+s.slice(1); }
+function shortDate(d){ return DAYS[d.getDay()].slice(0,3)+' '+d.getDate()+' '+MONTHS[d.getMonth()]; }
+function typeOf(ds){ return isEventDay(pd(ds))?'evento':'tavolo'; }
+function upcomingDates(){
+  var list=upcomingNights(8).map(isoD);
+  [nextEvent(),eventAfter(nextEvent())].forEach(function(d){ list.push(isoD(d)); });
+  return list.filter(function(v,i,a){ return a.indexOf(v)===i; }).sort();
+}
+function taken(date,type){ return mem.books.filter(function(b){ return b.date===date&&(b.type||'tavolo')===type; }).reduce(function(a,b){ return a+(parseInt(b.people,10)||0); },0); }
+function left(date,type){ return Math.max(0,CAP[type]-taken(date,type)); }
+function normCard(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
+function isMember(s){ var c=normCard(s); return c.length>=4&&mem.members.some(function(m){ return normCard(m.card)===c; }); }
+function tableById(id){ return mem.tables.filter(function(t){ return t.id===id; })[0]; }
+function tableBooking(tid,ds){ return mem.books.filter(function(b){ return b.table===tid&&b.date===ds; })[0]; }
+function clamp(v,a,b){ return Math.min(b,Math.max(a,v)); }
+function clearEl(e){ while(e.firstChild) e.removeChild(e.firstChild); return e; }
+function btn(cls,text,fn,attrs){ var b=el('button',Object.assign({type:'button',class:cls},attrs||{}),text); if(fn) b.addEventListener('click',fn); return b; }
+
+function meter(host,date,type){
+  var cap=CAP[type], l=date?left(date,type):cap;
+  clearEl(host);
+  var top=el('div',{class:'seats-top'}); top.appendChild(el('b',null,String(l)));
+  top.appendChild(el('span',null,l===0?(type==='evento'?'posti: concerto al completo':'posti: serata al completo'):(l===1?'posto rimasto':'posti rimasti')+' su '+cap));
+  var bar=el('div',{class:'seats-bar'}), fill=el('i'); fill.style.width=((cap-l)/cap*100)+'%'; bar.appendChild(fill);
+  host.appendChild(top); host.appendChild(bar);
+  host.classList.toggle('low',l>0&&l<=5); host.classList.toggle('full',l===0);
+  return l;
+}
+
+var adm={date:null,filter:'all',sel:null,edit:false};
+
+function renderLocale(){
+  var pend=mem.books.filter(function(b){ return b.status==='attesa'; }).length;
+  $('navPend').textContent=pend||'';
+  var on=document.querySelector('.view.on'), v=on?on.id.slice(2):'panoramica';
+  renderHome();
+  if(v==='prenotazioni') renderPren();
+  if(v==='tavoli') renderTables();
+  if(v==='evento') renderEvent();
+  if(v==='soci') renderSoci();
+}
+window.renderLocale=renderLocale;
+Array.prototype.forEach.call(document.querySelectorAll('[data-go]'),function(b){ b.addEventListener('click',function(){ show(b.getAttribute('data-go')); }); });
+
+/* ---- WhatsApp ---- */
+function waNumber(ph){
+  var d=String(ph||'').replace(/[^\d+]/g,'');
+  if(d.indexOf('+')===0) d=d.slice(1); else if(d.indexOf('00')===0) d=d.slice(2);
+  d=d.replace(/\D/g,'');
+  if(/^3\d{8,9}$/.test(d)||/^0\d{5,10}$/.test(d)) d='39'+d;
+  return d.length>=10?d:'';
+}
+function waText(b){
+  var when=longDate(pd(b.date)).toLowerCase(), t=b.table?tableById(b.table):null, n=+b.people||1;
+  var first=String(b.name||'').trim().split(/\s+/)[0]||'';
+  var body=b.type==='evento'
+    ?'confermiamo il tuo posto al concerto di '+when+' dalle 22:00, per '+n+(n===1?' persona':' persone')
+    :'confermiamo il tuo tavolo per '+when+' dalle 22:00, per '+n+(n===1?' persona':' persone')+(t?' (tavolo '+t.n+')':'');
+  return 'Ciao '+first+', '+body+'. Ricordati di portare la tessera ARCI. A presto da Mork\'s Place!';
+}
+function openSheet(title,nodes){
+  $('sheetTitle').textContent=title; var b=clearEl($('sheetBody'));
+  nodes.forEach(function(n){ b.appendChild(n); });
+  var d=$('dlgSheet'); if(!d.open) d.showModal();
+}
+$('sheetClose').addEventListener('click',function(){ $('dlgSheet').close(); });
+function sendWhatsApp(b){
+  var num=waNumber(b.phone), text=waText(b);
+  var ta=el('textarea',{readonly:'readonly',style:'width:100%;min-height:120px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink);padding:12px;font:inherit'}); ta.value=text;
+  if(!num){
+    openSheet('Prenotazione confermata',[el('p',{class:'muted'},'Per questa prenotazione non c\'è un numero di telefono valido, quindi non posso aprire WhatsApp. Se vuoi avvisare il cliente in altro modo, questo è il messaggio:'),ta]);
+    return;
+  }
+  var url='https://wa.me/'+num+'?text='+encodeURIComponent(text), w=null;
+  try{ w=window.open(url,'_blank'); if(w) w.opener=null; }catch(e){}
+  if(!w){
+    var a=el('a',{class:'btn primary',href:url,target:'_blank',rel:'noopener',style:'display:inline-flex;align-items:center;margin-top:14px'},'Apri WhatsApp');
+    openSheet('Conferma su WhatsApp',[el('p',{class:'muted'},'Il messaggio per '+b.name+' è pronto. Premi il pulsante: si apre WhatsApp e devi solo toccare Invia.'),ta,a]);
+  }
+}
+
+/* ---- Panoramica ---- */
+var sw=$('openSwitch');
+sw.addEventListener('click',function(){ mem.open=!mem.open; kvSave('open'); renderHome(); });
+function chipFor(b){ return el('span',{class:'chip'+(b.status==='confermata'?' ok2':'')},b.status==='confermata'?'Confermata':'Da confermare'); }
+function renderHome(){
+  sw.setAttribute('aria-checked',String(!!mem.open)); $('openLabel').textContent=mem.open?'Aperto stasera':'Chiuso stasera';
+  var nn=upcomingNights(1)[0], ne=nextEvent();
+  var nextDs=isoD(nn)<isoD(ne)?isoD(nn):isoD(ne), nextType=typeOf(nextDs);
+  $('sPending').textContent=String(mem.books.filter(function(b){ return b.status==='attesa'; }).length);
+  $('sNight').textContent=String(left(isoD(nn),'tavolo')); $('sNightLbl').textContent='posti liberi '+shortDate(nn)+', su 35';
+  $('sEvent').textContent=String(left(isoD(ne),'evento')); $('sEventLbl').textContent='posti liberi al concerto di '+shortDate(ne)+', su 50';
+  $('sSoci').textContent=String(mem.members.length);
+  $('homeNightTitle').textContent=(nextType==='evento'?'Concerto di ':'Prossima serata: ')+longDate(pd(nextDs)).toLowerCase();
+  var box=clearEl($('homeNight')), list=mem.books.filter(function(b){ return b.date===nextDs; });
+  if(!list.length){ box.appendChild(el('div',{class:'muted'},'Ancora nessuna prenotazione per questa serata.')); return; }
+  list.forEach(function(b){
+    var t=b.table?tableById(b.table):null, row=el('div',{class:'rowi'}), l=el('div',{class:'l'});
+    l.appendChild(el('b',null,b.name));
+    l.appendChild(el('span',{class:'s'},b.people+(+b.people===1?' persona':' persone')+(t?' · tavolo '+t.n:'')));
+    row.appendChild(l); row.appendChild(chipFor(b)); box.appendChild(row);
+  });
+}
+
+/* ---- Prenotazioni ---- */
+function tableOptions(ds,current){
+  var sel=document.createDocumentFragment();
+  sel.appendChild(el('option',{value:''},'Nessun tavolo'));
+  mem.tables.slice().sort(function(a,b){ return a.n-b.n; }).forEach(function(t){
+    var other=mem.books.filter(function(b){ return b.table===t.id&&b.date===ds&&b.id!==current; })[0];
+    var o=el('option',{value:t.id},'Tavolo '+t.n+' · '+t.seats+' posti'+(other?' · occupato':'')); if(other) o.disabled=true;
+    sel.appendChild(o);
+  });
+  return sel;
+}
+function renderPren(){
+  var dates=upcomingDates();
+  if(!adm.date||(dates.indexOf(adm.date)<0&&!mem.books.some(function(b){ return b.date===adm.date; }))) adm.date=dates[0];
+  var chips=clearEl($('dateChips'));
+  dates.forEach(function(ds){
+    var ty=typeOf(ds), d=pd(ds), b=el('button',{type:'button',class:'dchip'+(ty==='evento'?' ev':'')+(ds===adm.date?' on':'')});
+    b.appendChild(el('b',null,shortDate(d)));
+    b.appendChild(el('small',null,(ty==='evento'?'Concerto · ':'')+taken(ds,ty)+'/'+CAP[ty]+' posti'));
+    b.addEventListener('click',function(){ adm.date=ds; renderPren(); });
+    chips.appendChild(b);
+  });
+  meter($('prenSeats'),adm.date,typeOf(adm.date));
+  Array.prototype.forEach.call(document.querySelectorAll('.seg button'),function(b){ b.classList.toggle('on',b.getAttribute('data-filter')===adm.filter); });
+  var host=clearEl($('bookList'));
+  var list=mem.books.filter(function(b){ return b.date===adm.date&&(adm.filter==='all'||b.status==='attesa'); });
+  if(!list.length){ host.appendChild(el('div',{class:'empty'},adm.filter==='attesa'?'Nessuna prenotazione da confermare per questa serata.':'Nessuna prenotazione per questa serata. Tocca "+ Nuova prenotazione" per aggiungerne una.')); }
+  list.forEach(function(b){ host.appendChild(bookRow(b)); });
+  fillManDates();
+}
+function bookRow(b){
+  var t=b.table?tableById(b.table):null, over=t&&(+b.people>t.seats);
+  var row=el('div',{class:'item'}), l=el('div');
+  var nm=el('b',null,b.name); l.appendChild(nm);
+  l.appendChild(el('span',{class:'muted'},' · '+b.people+(+b.people===1?' persona':' persone')));
+  var s1=el('div'); s1.appendChild(el('small',null,(b.phone||'Senza telefono')+' · tessera ARCI '+b.card)); l.appendChild(s1);
+  if(b.note){ var s2=el('div'); s2.appendChild(el('small',null,b.note)); l.appendChild(s2); }
+  if(over){ var s3=el('div'); s3.appendChild(el('small',{class:'over'},'Il tavolo '+t.n+' ha '+t.seats+' posti per '+b.people+' persone')); l.appendChild(s3); }
+  var acts=el('div',{class:'acts'});
+  var sel=el('select',{class:'tsel','aria-label':'Tavolo per '+b.name}); sel.appendChild(tableOptions(b.date,b.id)); sel.value=b.table||'';
+  sel.addEventListener('change',function(){ b.table=sel.value||null; kvSave('books'); renderPren(); });
+  acts.appendChild(sel); acts.appendChild(chipFor(b));
+  if(b.status==='attesa'){
+    acts.appendChild(btn('mini wa','Conferma su WhatsApp',function(){ b.status='confermata'; kvSave('books'); renderLocale(); sendWhatsApp(b); }));
+  }else if(waNumber(b.phone)){
+    acts.appendChild(btn('mini wa','Rimanda',function(){ sendWhatsApp(b); }));
+  }
+  acts.appendChild(btn('mini danger','Elimina',function(){
+    if(!confirm('Eliminare la prenotazione di '+b.name+'?')) return;
+    mem.books=mem.books.filter(function(x){ return x.id!==b.id; }); kvSave('books'); renderLocale();
+  }));
+  row.appendChild(l); row.appendChild(acts); return row;
+}
+Array.prototype.forEach.call(document.querySelectorAll('.seg button'),function(b){ b.addEventListener('click',function(){ adm.filter=b.getAttribute('data-filter'); renderPren(); }); });
+
+function setMan(open){ $('manBox').hidden=!open; if(open){ fillManDates(); $('manName').focus(); } }
+$('manToggle').addEventListener('click',function(){ setMan($('manBox').hidden); });
+$('manCancel').addEventListener('click',function(){ $('manForm').reset(); $('manErr').textContent=''; setMan(false); });
+function fillManDates(){
+  var type=$('manType').value, sel=$('manDate'), keep=sel.value||(adm.date&&typeOf(adm.date)===type?adm.date:'');
+  var list=type==='evento'?[nextEvent(),eventAfter(nextEvent())]:upcomingNights(12);
+  clearEl(sel); list.forEach(function(d){ sel.appendChild(el('option',{value:isoD(d)},longDate(d))); });
+  if(keep&&sel.querySelector('option[value="'+keep+'"]')) sel.value=keep;
+  meter($('manSeats'),sel.value,type);
+  var tb=clearEl($('manTable')); tb.appendChild(tableOptions(sel.value,null));
+}
+$('manType').addEventListener('change',function(){ $('manDate').value=''; fillManDates(); });
+$('manDate').addEventListener('change',fillManDates);
+$('manForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var er=$('manErr'), type=$('manType').value, date=$('manDate').value, name=$('manName').value.trim(),
+      phone=$('manPhone').value.trim(), np=parseInt($('manPeople').value,10), card=$('manCard').value.trim(), tb=$('manTable').value;
+  if(!name){ er.textContent='Inserisci nome e cognome.'; $('manName').focus(); return; }
+  if(!np||np<1){ er.textContent='Inserisci il numero di persone.'; $('manPeople').focus(); return; }
+  if(!isMember(card)){ er.textContent='Questo numero non è tra le tessere soci. Aggiungilo prima nella sezione Tessere soci.'; $('manCard').focus(); return; }
+  var l=left(date,type);
+  if(np>l){ er.textContent=l===0?'Questa data è al completo.':'Per questa data restano solo '+l+' posti.'; return; }
+  er.textContent='';
+  mem.books.unshift({id:'m'+newId(),type:type,card:normCard(card),name:name,phone:phone,date:date,people:String(np),note:'Inserita dal gestore',status:'confermata',table:tb||null});
+  kvSave('books'); this.reset(); $('manType').value=type; adm.date=date; setMan(false); renderLocale(); toast('Prenotazione aggiunta.');
+});
+
+/* ---- Tavoli e QR ---- */
+var floor=$('floor'), drag=null;
+function qrUrl(t){ var base=(mem.qrBase||'https://www.indirizzo-del-sito.it').replace(/\/+$/,''); return base+'/?tavolo='+t.n; }
+function qrSvg(text){ try{ var q=qrcode(0,'M'); q.addData(text); q.make(); return q.createSvgTag({cellSize:6,margin:2,scalable:true}); }catch(e){ return ''; } }
+function floorDates(){
+  var s=$('floorDate'), keep=s.value||adm.date; clearEl(s);
+  upcomingDates().forEach(function(ds){ s.appendChild(el('option',{value:ds},longDate(pd(ds))+(typeOf(ds)==='evento'?' (concerto)':''))); });
+  if(keep&&s.querySelector('option[value="'+keep+'"]')) s.value=keep;
+}
+function renderTables(){
+  floorDates();
+  var ds=$('floorDate').value;
+  floor.classList.toggle('edit',adm.edit);
+  $('layoutToggle').textContent=adm.edit?'Fine spostamento':'Sposta i tavoli';
+  $('editHint').hidden=!adm.edit;
+  clearEl(floor);
+  mem.zones.forEach(function(z){
+    var d=el('div',{class:'zone'+(z.h>z.w*2.2?' vert':''),'data-zone':z.id},z.label);
+    d.style.left=z.x+'%'; d.style.top=z.y+'%'; d.style.width=z.w+'%'; d.style.height=z.h+'%'; floor.appendChild(d);
+  });
+  mem.tables.forEach(function(t){
+    var b=tableBooking(t.id,ds);
+    var d=el('button',{type:'button',class:'tb'+(t.shape==='quadrato'?' sq':t.shape==='lungo'?' long':'')+(b?' busy':'')+(adm.sel===t.id?' sel':''),'data-t':t.id,
+      'aria-label':'Tavolo '+t.n+', '+t.seats+' posti'+(b?', occupato da '+b.name:', libero')},String(t.n));
+    d.appendChild(el('small',null,t.seats+' p.'));
+    d.style.left=t.x+'%'; d.style.top=t.y+'%'; d.style.setProperty('--s',String(6+t.seats*.9)); floor.appendChild(d);
+  });
+  var tot=mem.tables.reduce(function(a,t){ return a+(+t.seats||0); },0);
+  $('seatTotal').textContent=mem.tables.length+(mem.tables.length===1?' tavolo, ':' tavoli, ')+tot+' posti a sedere';
+  $('qrBase').value=mem.qrBase||'';
+  $('qrBaseHint').textContent=mem.qrBase?('I QR aprono: '+qrUrl({n:'N'})):'Finché l\'indirizzo è vuoto i QR puntano a un indirizzo di prova: ricordati di inserirlo prima di stamparli.';
+  renderTside(ds);
+}
+function renderTside(ds){
+  var box=clearEl($('tside')), t=adm.sel?tableById(adm.sel):null;
+  if(!t){ box.appendChild(el('h3',null,'Seleziona un tavolo')); box.appendChild(el('p',{class:'muted'},'Tocca un tavolo nella piantina per vedere chi lo occupa, cambiare i posti e scaricare il suo QR.')); return; }
+  var b=tableBooking(t.id,ds), url=qrUrl(t);
+  box.appendChild(el('h3',null,'Tavolo '+t.n));
+  var p=el('p',{class:'muted'}); if(b){ p.appendChild(document.createTextNode('Occupato da ')); p.appendChild(el('b',null,b.name)); p.appendChild(document.createTextNode(', '+b.people+' persone')); } else p.textContent='Libero in questa serata';
+  box.appendChild(p);
+  var g=el('div',{class:'two'}), a1=el('div'), a2=el('div');
+  a1.appendChild(el('label',{for:'tsN'},'Numero')); var iN=el('input',{id:'tsN',inputmode:'numeric',value:String(t.n)}); a1.appendChild(iN);
+  a2.appendChild(el('label',{for:'tsSeats'},'Posti')); var iS=el('input',{id:'tsSeats',inputmode:'numeric',value:String(t.seats)}); a2.appendChild(iS);
+  g.appendChild(a1); g.appendChild(a2); box.appendChild(g);
+  var f=el('div',{style:'margin-bottom:6px'}); f.appendChild(el('label',{for:'tsShape'},'Forma'));
+  var sh=el('select',{id:'tsShape'}); [['tondo','Tondo'],['quadrato','Quadrato'],['lungo','Lungo']].forEach(function(o){ sh.appendChild(el('option',{value:o[0]},o[1])); }); sh.value=t.shape; f.appendChild(sh); box.appendChild(f);
+  var qb=el('div',{class:'qrbox','aria-label':'Codice QR del tavolo '+t.n}); qb.innerHTML=qrSvg(url); box.appendChild(qb);
+  box.appendChild(el('p',{class:'qr-url'},url));
+  var bt=el('div',{class:'btns'});
+  bt.appendChild(btn('mini','Scarica il QR',function(){ downloadQr(t,url); },{id:'tsDl'}));
+  bt.appendChild(btn('mini danger','Elimina tavolo',function(){
+    if(!confirm('Eliminare il tavolo '+t.n+'?')) return;
+    mem.tables=mem.tables.filter(function(x){ return x.id!==t.id; });
+    mem.books.forEach(function(x){ if(x.table===t.id) x.table=null; });
+    adm.sel=null; kvSave('tables'); kvSave('books'); renderLocale();
+  }));
+  box.appendChild(bt);
+  function upd(){
+    var n=parseInt(iN.value,10), s=parseInt(iS.value,10);
+    if(n>0) t.n=n; if(s>0) t.seats=Math.min(s,30); t.shape=sh.value; kvSave('tables'); renderTables();
+  }
+  iN.addEventListener('change',upd); iS.addEventListener('change',upd); sh.addEventListener('change',upd);
+}
+function downloadQr(t,url){
+  var q=qrcode(0,'M'); q.addData(url); q.make();
+  var c=document.createElement('canvas'), m=q.getModuleCount(), cell=16, pad=4*cell, size=m*cell+pad*2;
+  c.width=size; c.height=size+90;
+  var g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.fillStyle='#000';
+  for(var r=0;r<m;r++) for(var k=0;k<m;k++) if(q.isDark(r,k)) g.fillRect(pad+k*cell,pad+r*cell,cell,cell);
+  g.font='600 44px Inter, sans-serif'; g.textAlign='center'; g.fillText('Tavolo '+t.n,size/2,size+56);
+  c.toBlob(function(bl){
+    var a=document.createElement('a'); a.href=URL.createObjectURL(bl); a.download='qr-tavolo-'+t.n+'.png';
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
+    toast('QR salvato nella cartella Download.');
+  },'image/png');
+}
+$('floorDate').addEventListener('change',renderTables);
+$('layoutToggle').addEventListener('click',function(){ adm.edit=!adm.edit; renderTables(); });
+$('addTable').addEventListener('click',function(){
+  var n=mem.tables.reduce(function(a,t){ return Math.max(a,t.n); },0)+1, t={id:'t'+newId(),n:n,seats:4,shape:'tondo',x:50,y:44};
+  mem.tables.push(t); adm.sel=t.id; adm.edit=true; kvSave('tables'); renderTables();
+});
+$('qrBase').addEventListener('change',function(){
+  var v=this.value.trim(); if(v&&!/^https?:\/\//i.test(v)) v='https://'+v;
+  mem.qrBase=v; kvSave('qrBase'); renderTables();
+});
+floor.addEventListener('pointerdown',function(e){
+  var t=e.target.closest('.tb,.zone'); if(!t) return;
+  if(t.classList.contains('tb')){ adm.sel=t.getAttribute('data-t'); }
+  if(!adm.edit){ if(t.classList.contains('tb')) renderTables(); return; }
+  e.preventDefault();
+  drag={el:t,r:floor.getBoundingClientRect(),obj:t.classList.contains('tb')?tableById(t.getAttribute('data-t')):mem.zones.filter(function(z){ return z.id===t.getAttribute('data-zone'); })[0]};
+  t.classList.add('drag'); try{ floor.setPointerCapture(e.pointerId); }catch(x){}
+  Array.prototype.forEach.call(floor.querySelectorAll('.tb.sel'),function(x){ x.classList.remove('sel'); });
+  if(t.classList.contains('tb')) t.classList.add('sel');
+});
+floor.addEventListener('pointermove',function(e){
+  if(!drag) return;
+  var x=clamp((e.clientX-drag.r.left)/drag.r.width*100,3,97), y=clamp((e.clientY-drag.r.top)/drag.r.height*100,4,96);
+  drag.obj.x=Math.round(x*10)/10; drag.obj.y=Math.round(y*10)/10; drag.el.style.left=drag.obj.x+'%'; drag.el.style.top=drag.obj.y+'%';
+});
+function endDrag(){ if(!drag) return; drag=null; kvSave('tables'); kvSave('zones'); renderTables(); }
+floor.addEventListener('pointerup',endDrag); floor.addEventListener('pointercancel',endDrag);
+$('printQr').addEventListener('click',function(){
+  var sheet=clearEl($('qrSheet')), prev=el('div',{style:'display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px'});
+  mem.tables.slice().sort(function(a,b){ return a.n-b.n; }).forEach(function(t){
+    function card(){
+      var c=el('div',{class:'qcard'}); c.appendChild(el('img',{class:'lg',src:'logo.png',alt:''}));
+      c.appendChild(el('b',null,'Tavolo '+t.n)); var w=el('div',{class:'qw'}); w.innerHTML=qrSvg(qrUrl(t)); c.appendChild(w);
+      c.appendChild(el('small',null,'Inquadra il codice con la fotocamera')); return c;
+    }
+    sheet.appendChild(card());
+    var pc=card(); pc.style.cssText='background:#0B131D;border-radius:12px;padding:12px;text-align:center'; pc.querySelector('img').style.height='34px'; pc.querySelector('.qw').style.cssText='background:#fff;padding:6px;border-radius:8px;width:120px;margin:8px auto'; pc.querySelector('b').style.cssText='display:block;font-family:var(--serif);font-weight:400;font-size:1.4rem'; pc.querySelector('small').style.cssText='display:block;font-size:.72rem;color:#9aa5b8'; prev.appendChild(pc);
+  });
+  var pb=btn('btn primary','Stampa',function(){ try{ window.print(); }catch(x){} });
+  openSheet('QR da stampare ('+mem.tables.length+' tavoli)',[pb,el('p',{class:'muted',style:'margin:14px 0'},'Esce un foglio A4 con due cartoncini per riga.'),prev]);
+});
+
+/* ---- Evento del mese ---- */
+function currentPoster(){ return mem.poster&&mem.poster.date===isoD(nextEvent())?mem.poster:null; }
+function renderEvent(){
+  $('ownEv').textContent='Prossimo evento: '+longDate(nextEvent()).toLowerCase()+'. Dopo la serata la locandina viene tolta da sola.';
+  var po=currentPoster(), th=clearEl($('pThumb'));
+  if(po) th.appendChild(el('img',{src:po.img,alt:'Locandina caricata'})); else th.appendChild(el('span',null,'Nessuna locandina caricata.'));
+  $('pDel').style.display=po?'':'none'; $('pLabel').textContent=po?'Cambia la locandina':'Carica la locandina';
+  var host=clearEl($('evSeats'));
+  [nextEvent(),eventAfter(nextEvent())].forEach(function(d){
+    var ds=isoD(d), l=left(ds,'evento'), row=el('div',{class:'rowi'}), lt=el('div',{class:'l',style:'flex:1'});
+    lt.appendChild(el('b',null,longDate(d))); lt.appendChild(el('span',{class:'s'},(50-l)+' prenotati'));
+    var bar=el('div',{class:'bar'}), f=el('i'); f.style.width=((50-l)/50*100)+'%'; bar.appendChild(f); lt.appendChild(bar);
+    row.appendChild(lt); row.appendChild(el('div',{class:'r'},l===0?'Al completo':l+(l===1?' libero':' liberi')+' su 50')); host.appendChild(row);
+  });
+}
+$('pFile').addEventListener('change',function(){
+  var f=this.files&&this.files[0], er=$('pErr'), input=this; er.textContent='';
+  if(!f) return;
+  if(!/^image\//.test(f.type)){ er.textContent='Scegli un file immagine (JPG o PNG).'; input.value=''; return; }
+  var fr=new FileReader();
+  fr.onload=function(){
+    var im=new Image();
+    im.onload=function(){
+      var s=Math.min(1,1400/Math.max(im.width,im.height)), c=document.createElement('canvas');
+      c.width=Math.round(im.width*s); c.height=Math.round(im.height*s);
+      c.getContext('2d').drawImage(im,0,0,c.width,c.height);
+      mem.poster={date:isoD(nextEvent()),img:c.toDataURL('image/jpeg',.86)};
+      input.value=''; kvSave('poster'); renderEvent(); toast('Locandina salvata.');
+    };
+    im.onerror=function(){ er.textContent='Non riesco a leggere questa immagine. Prova con un JPG o un PNG.'; };
+    im.src=fr.result;
+  };
+  fr.readAsDataURL(f);
+});
+$('pDel').addEventListener('click',function(){ mem.poster=null; kvSave('poster'); renderEvent(); });
+
+/* ---- Tessere soci ---- */
+var memQ='';
+function renderSoci(){
+  var q=normCard(memQ), ql=memQ.trim().toLowerCase();
+  var list=mem.members.filter(function(m){ return !ql||(q&&normCard(m.card).indexOf(q)>=0)||(m.name||'').toLowerCase().indexOf(ql)>=0; });
+  $('memCount').textContent=mem.members.length+(mem.members.length===1?' tessera':' tessere');
+  var host=clearEl($('memberList'));
+  if(!list.length){ host.appendChild(el('div',{class:'empty'},mem.members.length?'Nessuna tessera trovata.':'Nessuna tessera: finché l\'elenco è vuoto non si può registrare nessuna prenotazione.')); return; }
+  list.forEach(function(m){
+    var row=el('div',{class:'item'}), l=el('div'); l.appendChild(el('b',null,m.card));
+    var s=el('div'); s.appendChild(el('small',null,m.name||'Senza nome')); l.appendChild(s);
+    var acts=el('div',{class:'acts'});
+    acts.appendChild(btn('mini danger','Elimina',function(){
+      if(!confirm('Eliminare la tessera '+m.card+'?')) return;
+      mem.members=mem.members.filter(function(x){ return x.card!==m.card; }); kvSave('members'); renderLocale();
+    }));
+    row.appendChild(l); row.appendChild(acts); host.appendChild(row);
+  });
+}
+$('memQ').addEventListener('input',function(){ memQ=this.value; renderSoci(); });
+$('memberForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var c=$('mCard').value.trim(), er=$('memberErr');
+  if(normCard(c).length<4){ er.textContent='Inserisci il numero della tessera (almeno 4 caratteri).'; return; }
+  if(isMember(c)){ er.textContent='Questa tessera è già nell\'elenco.'; return; }
+  er.textContent='';
+  mem.members.unshift({card:normCard(c),name:$('mName').value.trim()});
+  kvSave('members'); this.reset(); renderLocale(); toast('Tessera aggiunta.');
+});
+
 /* ---------- Avvio ---------- */
 var start=(location.hash||'').replace('#','');
 if(VIEWS.indexOf(start)>-1) show(start);
-openDB().then(function(d){ db=d; return loadAll(); }).then(function(){
+openDB().then(function(d){ db=d; return loadAll(); }).then(kvLoad).then(function(){
   render();
   if(navigator.storage&&navigator.storage.persist){ navigator.storage.persist().catch(function(){}); }
 }).catch(function(){
