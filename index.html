@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f2a44">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<title>Magazzino</title>
+<style>
+:root{
+  --bg:#f4f1ec; --card:#ffffff; --ink:#1d2433; --muted:#6a7285; --line:#e2ddd3;
+  --brand:#1f2a44; --accent:#c8862b; --danger:#b3372f; --ok:#2f7a4d;
+  --radius:14px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#14171f; --card:#1d222d; --ink:#eceff5; --muted:#9aa3b5; --line:#2b3140; --brand:#0f1524; --accent:#e0a14a; --danger:#e0645b; --ok:#58b57c; }
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;-webkit-text-size-adjust:100%}
+header{background:var(--brand);color:#fff;padding:14px 18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap;position:sticky;top:0;z-index:5}
+header h1{font-size:1.25rem;margin:0;flex:1;min-width:140px}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;padding:12px 18px;min-height:48px;background:var(--card);color:var(--ink);border:1px solid var(--line)}
+button.primary{background:var(--accent);color:#1a1205;border-color:var(--accent);font-weight:700}
+button.danger{background:var(--danger);color:#fff;border-color:var(--danger)}
+button.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.35)}
+button:active{transform:scale(.98)}
+main{max-width:1100px;margin:0 auto;padding:16px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin-bottom:14px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px}
+.stat small{color:var(--muted);display:block;margin-bottom:4px}
+.stat b{font-size:1.4rem}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:10px;margin-bottom:14px}
+@media (max-width:640px){.filters{grid-template-columns:1fr}}
+input,select,textarea{font:inherit;width:100%;padding:12px 14px;min-height:48px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+label{display:block;font-size:.85rem;color:var(--muted);margin:0 0 4px}
+.warn{background:#fff3d6;color:#5a3d00;border:1px solid #f0d28a;border-radius:var(--radius);padding:12px 14px;margin-bottom:14px;display:none}
+@media (prefers-color-scheme: dark){.warn{background:#3a2e12;color:#f5deaa;border-color:#6b5320}}
+table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+th,td{padding:12px 12px;text-align:left;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);background:var(--bg)}
+td.num,th.num{text-align:right;white-space:nowrap}
+tr:last-child td{border-bottom:0}
+tr.row{cursor:pointer}
+.tag{display:inline-block;background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-size:.85rem}
+.sub{color:var(--muted);font-size:.85rem}
+.empty{background:var(--card);border:1px dashed var(--line);border-radius:var(--radius);padding:28px;text-align:center;color:var(--muted)}
+@media (max-width:720px){
+  table,thead,tbody,tr,td{display:block}
+  thead{display:none}
+  tr{padding:10px 12px;border-bottom:1px solid var(--line)}
+  td{border:0;padding:3px 0;text-align:left!important;white-space:normal!important}
+  td[data-l]::before{content:attr(data-l) ": ";color:var(--muted);font-size:.85rem}
+}
+dialog{border:0;border-radius:18px;padding:0;width:min(640px,94vw);max-height:92vh;background:var(--card);color:var(--ink);box-shadow:0 20px 60px rgba(0,0,0,.35)}
+dialog::backdrop{background:rgba(10,14,24,.55)}
+.dlg{padding:18px 20px;overflow:auto;max-height:92vh}
+.dlg h2{margin:0 0 14px;font-size:1.2rem}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid .full{grid-column:1/-1}
+@media (max-width:520px){.grid{grid-template-columns:1fr}}
+.actions{display:flex;gap:10px;justify-content:flex-end;margin-top:16px;flex-wrap:wrap}
+.actions .left{margin-right:auto}
+.panel p{color:var(--muted);margin:6px 0 12px;font-size:.95rem}
+.panel .btns{display:flex;gap:10px;flex-wrap:wrap}
+#toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--brand);color:#fff;padding:12px 18px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20;max-width:90vw;text-align:center}
+#toast.show{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>Magazzino</h1>
+  <button class="ghost" id="btnBackup">Backup / Importa</button>
+  <button class="primary" id="btnAdd">+ Aggiungi prodotto</button>
+</header>
+
+<main>
+  <div class="warn" id="warnBackup"></div>
+
+  <section class="stats">
+    <div class="stat"><small>Prodotti in magazzino</small><b id="stN">0</b></div>
+    <div class="stat"><small>Valore senza IVA</small><b id="stNet">€ 0,00</b></div>
+    <div class="stat"><small>Valore con IVA</small><b id="stGross">€ 0,00</b></div>
+  </section>
+
+  <section class="filters">
+    <input id="q" type="search" placeholder="Cerca prodotto, fornitore, fattura…" aria-label="Cerca">
+    <select id="fTip" aria-label="Filtra per tipologia"><option value="">Tutte le tipologie</option></select>
+    <select id="fForn" aria-label="Filtra per fornitore"><option value="">Tutti i fornitori</option></select>
+  </section>
+
+  <div id="list"></div>
+</main>
+
+<!-- Form prodotto -->
+<dialog id="dlgProd">
+  <form class="dlg" id="frm" method="dialog" autocomplete="off">
+    <h2 id="dlgTitle">Nuovo prodotto</h2>
+    <div class="grid">
+      <div class="full"><label for="nome">Prodotto *</label><input id="nome" required placeholder="Es. Rhum J.Bally Ambre 70cl"></div>
+      <div><label for="tipologia">Tipologia del prodotto *</label><input id="tipologia" required list="dlTip" placeholder="Es. Rum, Birra, Vino…"><datalist id="dlTip"></datalist></div>
+      <div><label for="quantita">Quantità</label><input id="quantita" inputmode="decimal" value="1"></div>
+      <div><label for="costoNetto">Costo senza IVA (€) *</label><input id="costoNetto" required inputmode="decimal" placeholder="0,00"></div>
+      <div><label for="iva">IVA %</label><input id="iva" inputmode="decimal" value="22"></div>
+      <div class="full"><label for="costoLordo">Costo con IVA (€) *</label><input id="costoLordo" required inputmode="decimal" placeholder="0,00"></div>
+      <div><label for="fornitore">Fornitore *</label><input id="fornitore" required list="dlForn" placeholder="Es. Spiritual srl"><datalist id="dlForn"></datalist></div>
+      <div><label for="provenienza">Provenienza del fornitore</label><input id="provenienza" placeholder="Es. Napoli (NA)"></div>
+      <div><label for="fattura">N. fattura</label><input id="fattura"></div>
+      <div><label for="data">Data fattura</label><input id="data" type="date"></div>
+    </div>
+    <div class="actions">
+      <button type="button" class="danger left" id="btnDel" hidden>Elimina</button>
+      <button type="button" id="btnCancel">Annulla</button>
+      <button type="submit" class="primary" id="btnSave">Salva</button>
+    </div>
+  </form>
+</dialog>
+
+<!-- Backup -->
+<dialog id="dlgBackup">
+  <div class="dlg panel">
+    <h2>Backup e importazione</h2>
+    <p>I dati sono salvati solo su questo tablet. Se si cancellano i dati di Chrome o il tablet viene ripristinato, si perdono. Fai un backup ogni tanto e copialo su Google Drive, su un PC o su una chiavetta.</p>
+    <div class="btns">
+      <button class="primary" id="btnExport">Esporta backup (.json)</button>
+      <button id="btnCsv">Esporta tabella (.csv)</button>
+    </div>
+    <p id="lastBackup"></p>
+    <hr style="border:0;border-top:1px solid var(--line);margin:14px 0">
+    <p>Importa un file di backup o un file di fatture preparato. I prodotti già presenti non vengono duplicati.</p>
+    <div class="btns">
+      <button id="btnImport">Importa file (.json)</button>
+      <input type="file" id="fileImport" accept=".json,application/json" hidden>
+    </div>
+    <div class="actions"><button id="btnCloseBackup">Chiudi</button></div>
+  </div>
+</dialog>
+
+<div id="toast" role="status"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- Database locale (IndexedDB) ---------- */
+var DB_NAME='magazzino', STORE='prodotti', db=null, items=[];
+
+function openDB(){
+  return new Promise(function(res,rej){
+    var r=indexedDB.open(DB_NAME,1);
+    r.onupgradeneeded=function(){ r.result.createObjectStore(STORE,{keyPath:'id'}); };
+    r.onsuccess=function(){ res(r.result); };
+    r.onerror=function(){ rej(r.error); };
+  });
+}
+function tx(mode,fn){
+  return new Promise(function(res,rej){
+    var t=db.transaction(STORE,mode), s=t.objectStore(STORE), out=fn(s);
+    t.oncomplete=function(){ res(out&&out.result); };
+    t.onerror=t.onabort=function(){ rej(t.error); };
+  });
+}
+function loadAll(){ return tx('readonly',function(s){return s.getAll();}).then(function(r){ items=r||[]; }); }
+function putOne(o){ return tx('readwrite',function(s){return s.put(o);}); }
+function putMany(arr){ return tx('readwrite',function(s){ arr.forEach(function(o){s.put(o);}); }); }
+function delOne(id){ return tx('readwrite',function(s){return s.delete(id);}); }
+
+/* ---------- Utilità ---------- */
+var $=function(id){return document.getElementById(id);};
+var eur=new Intl.NumberFormat('it-IT',{style:'currency',currency:'EUR'});
+function num(v){
+  if(typeof v==='number') return isFinite(v)?v:0;
+  var s=String(v==null?'':v).trim().replace(/\s/g,'').replace(/€/g,'');
+  if(s.indexOf(',')>-1) s=s.replace(/\./g,'').replace(',','.');
+  var n=parseFloat(s); return isFinite(n)?n:0;
+}
+function r2(n){ return Math.round(n*100)/100; }
+function fmtN(n){ return String(r2(n)).replace('.',','); }
+function newId(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,8); }
+function todayISO(){ var d=new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function toast(msg){ var t=$('toast'); t.textContent=msg; t.classList.add('show'); clearTimeout(toast._t); toast._t=setTimeout(function(){t.classList.remove('show');},3200); }
+function lsGet(k){ try{return localStorage.getItem(k);}catch(e){return null;} }
+function lsSet(k,v){ try{localStorage.setItem(k,v);}catch(e){} }
+function el(tag,attrs,text){
+  var e=document.createElement(tag);
+  if(attrs) Object.keys(attrs).forEach(function(k){ e.setAttribute(k,attrs[k]); });
+  if(text!=null) e.textContent=text;
+  return e;
+}
+function norm(o){
+  var n={
+    id: o.id ? String(o.id) : newId(),
+    nome: String(o.nome||'').trim(),
+    tipologia: String(o.tipologia||'').trim(),
+    quantita: num(o.quantita)||1,
+    costoNetto: r2(num(o.costoNetto)),
+    iva: o.iva===undefined||o.iva===''?22:num(o.iva),
+    costoLordo: r2(num(o.costoLordo)),
+    fornitore: String(o.fornitore||'').trim(),
+    provenienza: String(o.provenienza||'').trim(),
+    fattura: String(o.fattura||'').trim(),
+    data: String(o.data||'').trim()
+  };
+  if(!n.costoLordo && n.costoNetto) n.costoLordo=r2(n.costoNetto*(1+n.iva/100));
+  if(!n.costoNetto && n.costoLordo) n.costoNetto=r2(n.costoLordo/(1+n.iva/100));
+  return n;
+}
+function dupKey(o){ return [o.fattura,o.nome,o.data,o.costoNetto].join('|').toLowerCase(); }
+function fmtDate(s){ if(!s) return ''; var p=s.split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s; }
+
+/* ---------- Elenco ---------- */
+function uniq(key){
+  var m={}; items.forEach(function(i){ if(i[key]) m[i[key]]=1; });
+  return Object.keys(m).sort(function(a,b){return a.localeCompare(b,'it');});
+}
+function fillSelect(sel,vals,first){
+  var cur=sel.value; sel.textContent='';
+  sel.appendChild(el('option',{value:''},first));
+  vals.forEach(function(v){ sel.appendChild(el('option',{value:v},v)); });
+  if(vals.indexOf(cur)>-1) sel.value=cur;
+}
+function fillList(dl,vals){ dl.textContent=''; vals.forEach(function(v){ dl.appendChild(el('option',{value:v})); }); }
+
+function render(){
+  fillSelect($('fTip'),uniq('tipologia'),'Tutte le tipologie');
+  fillSelect($('fForn'),uniq('fornitore'),'Tutti i fornitori');
+  fillList($('dlTip'),uniq('tipologia'));
+  fillList($('dlForn'),uniq('fornitore'));
+
+  var q=$('q').value.trim().toLowerCase(), ft=$('fTip').value, ff=$('fForn').value;
+  var rows=items.filter(function(i){
+    if(ft && i.tipologia!==ft) return false;
+    if(ff && i.fornitore!==ff) return false;
+    if(q){
+      var hay=[i.nome,i.tipologia,i.fornitore,i.provenienza,i.fattura].join(' ').toLowerCase();
+      if(hay.indexOf(q)<0) return false;
+    }
+    return true;
+  }).sort(function(a,b){ return (b.data||'').localeCompare(a.data||'') || a.nome.localeCompare(b.nome,'it'); });
+
+  var net=0,gross=0,pieces=0;
+  rows.forEach(function(i){ net+=i.costoNetto*i.quantita; gross+=i.costoLordo*i.quantita; pieces++; });
+  $('stN').textContent=String(pieces);
+  $('stNet').textContent=eur.format(net);
+  $('stGross').textContent=eur.format(gross);
+
+  var host=$('list'); host.textContent='';
+  if(!rows.length){
+    host.appendChild(el('div',{class:'empty'}, items.length?'Nessun prodotto corrisponde ai filtri.':'Il magazzino è vuoto. Tocca "+ Aggiungi prodotto" oppure importa un file dal menu Backup / Importa.'));
+    return;
+  }
+  var t=el('table'), thead=el('thead'), hr=el('tr');
+  [['Prodotto',''],['Tipologia',''],['Q.tà','num'],['Senza IVA','num'],['Con IVA','num'],['Fornitore','']].forEach(function(h){
+    hr.appendChild(el('th',h[1]?{class:h[1]}:null,h[0]));
+  });
+  thead.appendChild(hr); t.appendChild(thead);
+  var tb=el('tbody');
+  rows.forEach(function(i){
+    var tr=el('tr',{class:'row'});
+    var td=el('td',{'data-l':'Prodotto'}); td.appendChild(el('b',null,i.nome));
+    var meta=[i.fattura?('Fatt. '+i.fattura):'', fmtDate(i.data)].filter(Boolean).join(' · ');
+    if(meta){ td.appendChild(el('div',{class:'sub'},meta)); }
+    tr.appendChild(td);
+    var tt=el('td',{'data-l':'Tipologia'}); tt.appendChild(el('span',{class:'tag'},i.tipologia)); tr.appendChild(tt);
+    tr.appendChild(el('td',{class:'num','data-l':'Q.tà'},fmtN(i.quantita)));
+    tr.appendChild(el('td',{class:'num','data-l':'Senza IVA'},eur.format(i.costoNetto)));
+    var tg=el('td',{class:'num','data-l':'Con IVA'},eur.format(i.costoLordo)); tg.appendChild(el('div',{class:'sub'},'IVA '+fmtN(i.iva)+'%')); tr.appendChild(tg);
+    var tf=el('td',{'data-l':'Fornitore'}); tf.appendChild(document.createTextNode(i.fornitore));
+    if(i.provenienza) tf.appendChild(el('div',{class:'sub'},i.provenienza));
+    tr.appendChild(tf);
+    tr.addEventListener('click',function(){ openForm(i); });
+    tb.appendChild(tr);
+  });
+  t.appendChild(tb); host.appendChild(t);
+}
+
+/* ---------- Form ---------- */
+var editingId=null;
+function openForm(item){
+  editingId=item?item.id:null;
+  $('dlgTitle').textContent=item?'Modifica prodotto':'Nuovo prodotto';
+  $('btnDel').hidden=!item;
+  var v=item||{quantita:1,iva:22,data:todayISO()};
+  $('nome').value=v.nome||''; $('tipologia').value=v.tipologia||'';
+  $('quantita').value=fmtN(v.quantita||1);
+  $('costoNetto').value=item?fmtN(v.costoNetto):''; $('iva').value=fmtN(v.iva===undefined?22:v.iva);
+  $('costoLordo').value=item?fmtN(v.costoLordo):'';
+  $('fornitore').value=v.fornitore||''; $('provenienza').value=v.provenienza||'';
+  $('fattura').value=v.fattura||''; $('data').value=v.data||'';
+  $('dlgProd').showModal();
+}
+function fromNet(){ var n=num($('costoNetto').value), i=num($('iva').value); if($('costoNetto').value!=='') $('costoLordo').value=fmtN(n*(1+i/100)); }
+function fromGross(){ var g=num($('costoLordo').value), i=num($('iva').value); if($('costoLordo').value!=='') $('costoNetto').value=fmtN(g/(1+i/100)); }
+$('costoNetto').addEventListener('input',fromNet);
+$('iva').addEventListener('input',fromNet);
+$('costoLordo').addEventListener('input',fromGross);
+
+$('frm').addEventListener('submit',function(e){
+  e.preventDefault();
+  var o=norm({
+    id:editingId, nome:$('nome').value, tipologia:$('tipologia').value, quantita:$('quantita').value,
+    costoNetto:$('costoNetto').value, iva:$('iva').value, costoLordo:$('costoLordo').value,
+    fornitore:$('fornitore').value, provenienza:$('provenienza').value, fattura:$('fattura').value, data:$('data').value
+  });
+  if(!o.nome||!o.tipologia||!o.fornitore){ toast('Compila prodotto, tipologia e fornitore.'); return; }
+  putOne(o).then(loadAll).then(function(){ render(); $('dlgProd').close(); toast('Salvato.'); checkBackup(); })
+    .catch(function(){ toast('Errore nel salvataggio.'); });
+});
+$('btnCancel').addEventListener('click',function(){ $('dlgProd').close(); });
+$('btnDel').addEventListener('click',function(){
+  if(!editingId) return;
+  if(!confirm('Eliminare questo prodotto dal magazzino?')) return;
+  delOne(editingId).then(loadAll).then(function(){ render(); $('dlgProd').close(); toast('Eliminato.'); });
+});
+$('btnAdd').addEventListener('click',function(){ openForm(null); });
+['q','fTip','fForn'].forEach(function(id){ $(id).addEventListener('input',render); });
+
+/* ---------- Backup / import / export ---------- */
+function download(name,mime,text){
+  var b=new Blob([text],{type:mime}), a=document.createElement('a');
+  a.href=URL.createObjectURL(b); a.download=name; document.body.appendChild(a); a.click();
+  setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
+}
+function stamp(){ return todayISO(); }
+function backupInfo(){
+  var d=lsGet('ultimoBackup');
+  $('lastBackup').textContent=d?('Ultimo backup: '+fmtDate(d)+'.'):'Nessun backup ancora fatto da questo tablet.';
+}
+function checkBackup(){
+  var w=$('warnBackup'), d=lsGet('ultimoBackup');
+  if(!items.length){ w.style.display='none'; return; }
+  var days=d?Math.floor((Date.now()-new Date(d+'T00:00:00').getTime())/86400000):null;
+  if(d===null){ w.textContent='Nessun backup fatto. Apri "Backup / Importa" ed esporta una copia dei dati.'; w.style.display='block'; }
+  else if(days>=7){ w.textContent='L\'ultimo backup risale a '+days+' giorni fa. Esportane uno nuovo da "Backup / Importa".'; w.style.display='block'; }
+  else w.style.display='none';
+}
+$('btnBackup').addEventListener('click',function(){ backupInfo(); $('dlgBackup').showModal(); });
+$('btnCloseBackup').addEventListener('click',function(){ $('dlgBackup').close(); });
+
+$('btnExport').addEventListener('click',function(){
+  var payload={versione:1,esportato:new Date().toISOString(),prodotti:items};
+  download('magazzino-backup-'+stamp()+'.json','application/json',JSON.stringify(payload,null,2));
+  lsSet('ultimoBackup',todayISO()); backupInfo(); checkBackup();
+  toast('Backup salvato nella cartella Download.');
+});
+function csvCell(v){ var s=String(v==null?'':v); return /[;"\n\r]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s; }
+$('btnCsv').addEventListener('click',function(){
+  var head=['Prodotto','Tipologia','Quantità','Costo senza IVA','IVA %','Costo con IVA','Fornitore','Provenienza fornitore','N. fattura','Data fattura'];
+  var lines=[head.join(';')];
+  items.slice().sort(function(a,b){return (b.data||'').localeCompare(a.data||'');}).forEach(function(i){
+    lines.push([i.nome,i.tipologia,fmtN(i.quantita),fmtN(i.costoNetto),fmtN(i.iva),fmtN(i.costoLordo),i.fornitore,i.provenienza,i.fattura,fmtDate(i.data)].map(csvCell).join(';'));
+  });
+  download('magazzino-'+stamp()+'.csv','text/csv;charset=utf-8','﻿'+lines.join('\r\n'));
+  toast('Tabella salvata nella cartella Download.');
+});
+$('btnImport').addEventListener('click',function(){ $('fileImport').click(); });
+$('fileImport').addEventListener('change',function(ev){
+  var f=ev.target.files[0]; ev.target.value='';
+  if(!f) return;
+  var rd=new FileReader();
+  rd.onload=function(){
+    var data;
+    try{ data=JSON.parse(rd.result); }catch(e){ toast('File non valido.'); return; }
+    var arr=Array.isArray(data)?data:(data&&data.prodotti);
+    if(!Array.isArray(arr)){ toast('Il file non contiene prodotti.'); return; }
+    var have={}; items.forEach(function(i){ have[dupKey(i)]=1; });
+    var add=[], skipped=0;
+    arr.forEach(function(o){
+      if(!o||typeof o!=='object') return;
+      var n=norm(o);
+      if(!n.nome){ skipped++; return; }
+      var k=dupKey(n);
+      if(have[k]){ skipped++; return; }
+      have[k]=1; add.push(n);
+    });
+    putMany(add).then(loadAll).then(function(){
+      render(); checkBackup();
+      toast('Importati '+add.length+' prodotti'+(skipped?(' ('+skipped+' già presenti o non validi)'):'')+'.');
+      $('dlgBackup').close();
+    }).catch(function(){ toast('Errore durante l\'importazione.'); });
+  };
+  rd.readAsText(f);
+});
+
+/* ---------- Avvio ---------- */
+openDB().then(function(d){ db=d; return loadAll(); }).then(function(){
+  render(); checkBackup();
+  if(navigator.storage&&navigator.storage.persist){ navigator.storage.persist().catch(function(){}); }
+}).catch(function(){
+  $('list').appendChild(el('div',{class:'empty'},'Impossibile aprire il database locale. Prova a riaprire l\'app da Chrome.'));
+});
+if('serviceWorker' in navigator){ window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
+})();
+</script>
+</body>
+</html>
