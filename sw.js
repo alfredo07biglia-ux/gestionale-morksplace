@@ -1,5 +1,9 @@
-const CACHE = 'magazzino-v2';
-const FILES = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './logo.png'];
+const CACHE = 'magazzino-v3';
+const FILES = [
+  './', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './logo.png',
+  './fonts/inter-latin-400-normal.woff2', './fonts/inter-latin-500-normal.woff2', './fonts/inter-latin-600-normal.woff2',
+  './fonts/instrument-serif-latin-400-normal.woff2'
+];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(CACHE).then((c) => c.addAll(FILES)).then(() => self.skipWaiting()));
