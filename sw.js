@@ -1,4 +1,4 @@
-const CACHE = 'magazzino-v4';
+const CACHE = 'gestionale-v5';
 const FILES = [
   './', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './logo.png',
   './fonts/inter-latin-400-normal.woff2', './fonts/inter-latin-500-normal.woff2', './fonts/inter-latin-600-normal.woff2',
@@ -17,12 +17,13 @@ self.addEventListener('activate', (e) => {
   );
 });
 
-// Rete prima (così gli aggiornamenti arrivano), cache se offline.
+// Rete prima, ignorando la memoria del browser (GitHub Pages la tiene ~10 minuti):
+// così la versione nuova arriva subito. La copia in cache serve solo offline.
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET' || new URL(req.url).origin !== location.origin) return;
   e.respondWith(
-    fetch(req)
+    fetch(req, { cache: 'no-store' })
       .then((res) => {
         const copy = res.clone();
         caches.open(CACHE).then((c) => c.put(req, copy));

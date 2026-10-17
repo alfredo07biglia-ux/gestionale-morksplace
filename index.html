@@ -562,7 +562,18 @@ openDB().then(function(d){ db=d; return loadAll(); }).then(function(){
 }).catch(function(){
   $('list').appendChild(el('div',{class:'card empty'},'Impossibile aprire il database locale. Prova a riaprire l\'app da Chrome.'));
 });
-if('serviceWorker' in navigator){ window.addEventListener('load',function(){ navigator.serviceWorker.register('sw.js').catch(function(){}); }); }
+if('serviceWorker' in navigator){
+  // Quando arriva una versione nuova dell'app, ricarica la pagina una sola volta da sola.
+  var hadController=!!navigator.serviceWorker.controller, reloaded=false;
+  navigator.serviceWorker.addEventListener('controllerchange',function(){
+    if(!hadController||reloaded) return;
+    reloaded=true; location.reload();
+  });
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('sw.js',{updateViaCache:'none'})
+      .then(function(r){ return r.update(); }).catch(function(){});
+  });
+}
 })();
 </script>
 </body>
