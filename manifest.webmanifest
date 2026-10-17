@@ -1,6 +1,6 @@
 {
-  "name": "Gestionale Workspace",
-  "short_name": "Mork's Place",
+  "name": "Gestionale Mork's Place",
+  "short_name": "Gestionale Mork's Place",
   "description": "Gestionale del locale, dati salvati solo su questo dispositivo",
   "lang": "it",
   "start_url": "./",
