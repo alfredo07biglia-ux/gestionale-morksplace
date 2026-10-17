@@ -263,6 +263,19 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
   .cards4{grid-template-columns:1fr 1fr;gap:12px}
   .stat{min-height:120px;padding:18px}
 }
+
+#lock{position:fixed;inset:0;z-index:9999;background:#0a1020;display:none;align-items:center;justify-content:center;flex-direction:column;gap:18px;padding:20px}
+#lock.on{display:flex}
+#lock h2{font-family:'Instrument Serif',serif;font-weight:400;font-size:34px;margin:0}
+#lock .dots{display:flex;gap:14px;height:18px}
+#lock .dots i{width:16px;height:16px;border-radius:50%;border:2px solid #cdd5e2}
+#lock .dots i.f{background:#cdd5e2}
+#lock .pad{display:grid;grid-template-columns:repeat(3,76px);gap:12px}
+#lock .pad button{height:68px;border-radius:16px;border:1px solid var(--line);background:#141e36;color:var(--ink);font-size:24px;cursor:pointer}
+#lock .pad button:active{background:#22305a}
+#lock .msg{min-height:20px;color:#f0a35e;font-size:14px}
+#lock.err .dots{animation:lk .3s}
+@keyframes lk{25%{transform:translateX(-8px)}75%{transform:translateX(8px)}}
 </style>
 </head>
 <body>
@@ -616,6 +629,31 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
 
 <dialog id="dlgSheet"><div class="dlg"><h2 id="sheetTitle"></h2><div id="sheetBody"></div><div class="actions"><button type="button" class="btn" id="sheetClose">Chiudi</button></div></div></dialog>
 
+<div id="lock" role="dialog" aria-label="Codice di accesso"><h2>Mork's Place</h2><div class="dots"><i></i><i></i><i></i><i></i></div><div class="msg" id="lockMsg">Inserisci il PIN</div><div class="pad" id="lockPad"></div></div>
+<script>
+(function(){
+var PIN='1234',buf='',lk=document.getElementById('lock'),pad=document.getElementById('lockPad'),dots=lk.querySelectorAll('.dots i'),msg=document.getElementById('lockMsg'),hiddenAt=0;
+function draw(){ for(var i=0;i<4;i++) dots[i].className=i<buf.length?'f':''; }
+function lock(){ buf=''; draw(); msg.textContent='Inserisci il PIN'; lk.classList.add('on'); }
+function key(k){
+  if(k==='<'){ buf=buf.slice(0,-1); draw(); return; }
+  if(buf.length>=4) return; buf+=k; draw();
+  if(buf.length===4){
+    if(buf===PIN){ lk.classList.remove('on'); buf=''; draw(); }
+    else { msg.textContent='PIN errato'; lk.classList.add('err'); setTimeout(function(){ lk.classList.remove('err'); buf=''; draw(); },350); }
+  }
+}
+['1','2','3','4','5','6','7','8','9','','0','<'].forEach(function(k){
+  var b=document.createElement('button'); b.type='button'; b.textContent=k==='<'?'⌫':k;
+  if(!k) b.style.visibility='hidden'; else b.addEventListener('click',function(){ key(k); });
+  pad.appendChild(b);
+});
+document.addEventListener('visibilitychange',function(){
+  if(document.hidden) hiddenAt=Date.now(); else if(hiddenAt && Date.now()-hiddenAt>300000) lock();
+});
+lock();
+})();
+</script>
 <div id="toast" role="status"></div>
 
 <script>
