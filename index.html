@@ -25,14 +25,14 @@
   --pad:clamp(16px,4.5vw,76px);
 }
 *{box-sizing:border-box}
-html{-webkit-text-size-adjust:100%}
+html{-webkit-text-size-adjust:100%;background:#0a1020}
 body{
   margin:0;min-height:100vh;color:var(--ink);font:400 16px/1.45 var(--sans);
   background:
     radial-gradient(1100px 560px at 4% -4%, #172a4b 0%, rgba(23,42,75,0) 62%),
     radial-gradient(900px 500px at 96% 110%, #0f1d38 0%, rgba(15,29,56,0) 60%),
     linear-gradient(180deg,#0a1020 0%,#060a15 100%);
-  background-attachment:fixed;
+  background-color:#0a1020;background-repeat:no-repeat;
 }
 button,input,select{font:inherit;color:inherit}
 h1,h2{margin:0;font-weight:400}
@@ -91,7 +91,9 @@ h1{font-family:var(--serif);font-size:clamp(2.8rem,5.2vw,3.9rem);line-height:1;l
 .btn:active{transform:scale(.98)}
 .btn.primary{background:linear-gradient(180deg,#eef1f5 0%,#b4bdc9 100%);border-color:rgba(255,255,255,.55);color:#0b1220;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.28)}
 .btn.danger{background:rgba(224,100,91,.16);border-color:rgba(224,100,91,.55);color:#ffb9b2}
-.field,input,select{width:100%;min-height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.05);color:var(--ink)}
+.field,input,select{width:100%;min-height:48px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background-color:#141e36;color:var(--ink)}
+select{-webkit-appearance:none;appearance:none;padding-right:40px;background-repeat:no-repeat;background-position:right 14px center;background-size:16px 16px;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23cdd5e2' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E")}
 input:focus,select:focus{outline:2px solid rgba(198,206,213,.55);outline-offset:1px}
 input::placeholder{color:#7c879b}
 select option{background:#101a30;color:var(--ink)}
@@ -233,7 +235,7 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
 @media (max-width:860px){
   .shell{grid-template-columns:1fr;padding-bottom:110px}
   .nav{position:fixed;left:0;right:0;bottom:0;top:auto;z-index:30;flex-direction:row;justify-content:space-around;gap:4px;
-    padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:rgba(8,13,26,.94);backdrop-filter:blur(12px);border-top:1px solid var(--line)}
+    padding:8px 10px calc(8px + env(safe-area-inset-bottom));background:#080d1a;border-top:1px solid var(--line)}
   .nav button{flex-direction:column;gap:4px;min-height:58px;flex:1;padding:6px 4px;justify-content:center;font-size:.8rem;text-align:center}
   #toast{bottom:104px}
   .cards2{grid-template-columns:1fr}
