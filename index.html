@@ -195,6 +195,7 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
 .switch{position:relative;width:62px;height:34px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.1);cursor:pointer;padding:0}
 .switch::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#cfd6df;transition:transform .2s}
 .switch[aria-checked="true"]{background:rgba(95,192,138,.45)} .switch[aria-checked="true"]::after{transform:translateX(28px);background:#fff}
+.cards3{grid-template-columns:repeat(3,1fr)}
 .stat.link{cursor:pointer;text-align:left;color:inherit}
 .stat.alert .big{color:var(--warn)}
 .btn.sm{min-height:44px;padding:0 16px}
@@ -235,6 +236,9 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
   .nav button{position:relative;font-size:.68rem!important}
   .nav button svg{width:20px;height:20px}
   .two,.three{grid-template-columns:1fr}
+  .cards3{grid-template-columns:1fr!important}
+  .nav{gap:0!important;padding-left:4px!important;padding-right:4px!important}
+  .nav button{min-width:0;padding:6px 0!important;font-size:.62rem!important}
   .toolbar select{min-width:0;width:100%}
 }
 @media (max-width:720px){
@@ -261,13 +265,13 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
 <div class="shell">
   <nav class="nav" aria-label="Sezioni">
     <button type="button" data-view="panoramica" class="on">
-      <svg viewBox="0 0 24 24"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.8V20h13V9.8"/></svg><span>Panoramica</span>
+      <svg viewBox="0 0 24 24"><path d="M3.5 11 12 4l8.5 7"/><path d="M5.5 9.8V20h13V9.8"/></svg><span class="full">Panoramica</span><span class="short">Home</span>
     </button>
     <button type="button" data-view="prenotazioni">
       <svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16"/></svg><span class="full">Prenotazioni</span><span class="short">Prenota</span><span class="badge" id="navPend"></span>
     </button>
     <button type="button" data-view="tavoli">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span class="full">Tavoli e QR</span><span class="short">Tavoli</span>
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg><span class="full">Tavoli</span><span class="short">Tavoli</span>
     </button>
     <button type="button" data-view="evento">
       <svg viewBox="0 0 24 24"><path d="M9 18V6l10-2v12"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="16.5" cy="16" r="2.5"/></svg><span class="full">Evento del mese</span><span class="short">Evento</span>
@@ -275,8 +279,11 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
     <button type="button" data-view="soci">
       <svg viewBox="0 0 24 24"><rect x="3.5" y="6" width="17" height="12" rx="2"/><circle cx="9" cy="11.5" r="2"/><path d="M13.5 10.5h4M13.5 13.5h3M6 16c.6-1.4 1.7-2 3-2s2.400.6 3 2"/></svg><span class="full">Tessere soci</span><span class="short">Soci</span>
     </button>
+    <button type="button" data-view="registro">
+      <svg viewBox="0 0 24 24"><path d="M6 3.5h12v17H6z"/><path d="M9 8h6M9 12h6M9 16h3"/></svg><span>Registro</span>
+    </button>
     <button type="button" data-view="magazzino">
-      <svg viewBox="0 0 24 24"><path d="M3.5 9.5 12 4l8.5 5.5V20h-17z"/><path d="M8 20v-6h8v6"/><path d="M8 11.5h8"/></svg><span>Magazzino</span>
+      <svg viewBox="0 0 24 24"><path d="M3.5 9.5 12 4l8.5 5.5V20h-17z"/><path d="M8 20v-6h8v6"/><path d="M8 11.5h8"/></svg><span class="full">Magazzino</span><span class="short">Magazz.</span>
     </button>
     <button type="button" data-view="backup">
       <svg viewBox="0 0 24 24"><path d="M12 4v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M4.5 19.5h15"/></svg><span>Backup</span>
@@ -350,11 +357,10 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
     <!-- TAVOLI E QR -->
     <section class="view" id="v-tavoli">
       <div class="head">
-        <div><h1>Tavoli e QR</h1><p class="lead" id="seatTotal"></p></div>
+        <div><h1>Tavoli</h1><p class="lead" id="seatTotal"></p></div>
         <div class="btns">
           <button type="button" class="btn" id="layoutToggle">Sposta i tavoli</button>
           <button type="button" class="btn" id="addTable">+ Tavolo</button>
-          <button type="button" class="btn primary" id="printQr">Stampa i QR</button>
         </div>
       </div>
       <div class="toolbar">
@@ -365,12 +371,6 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
       <div class="floor-wrap">
         <div class="floor" id="floor" aria-label="Piantina del locale"></div>
         <aside class="card panelbox" id="tside" aria-live="polite"></aside>
-      </div>
-      <div class="card panelbox" style="margin-top:18px">
-        <h3>Dove portano i QR</h3>
-        <p>Ogni QR contiene l'indirizzo che scrivi qui, seguito dal numero del tavolo. Scrivilo prima di stampare.</p>
-        <div style="max-width:520px"><label for="qrBase">Indirizzo</label><input id="qrBase" type="url" inputmode="url" placeholder="https://www.indirizzo-del-sito.it"></div>
-        <p class="hint-line" id="qrBaseHint" style="margin-top:10px"></p>
       </div>
     </section>
 
@@ -407,6 +407,29 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
       </div>
       <div class="toolbar"><input type="search" id="memQ" placeholder="Cerca numero o nome" aria-label="Cerca tra le tessere"><span class="muted" id="memCount"></span></div>
       <div class="card" id="memberList"></div>
+    </section>
+
+    <!-- REGISTRO -->
+    <section class="view" id="v-registro">
+      <div class="head">
+        <div><h1>Registro</h1><p class="lead">Entrate e uscite del locale, con il netto calcolato da solo.</p></div>
+        <div class="btns"><button type="button" class="btn" id="regCsv">Esporta (.csv)</button><button type="button" class="btn primary" id="regAdd">+ Aggiungi riga</button></div>
+      </div>
+      <div class="toolbar">
+        <label for="regYear" style="margin:0">Anno</label><select id="regYear" style="min-width:110px"></select>
+        <label for="regMonth" style="margin:0">Mese</label><select id="regMonth"></select>
+      </div>
+      <div class="cards4 cards3">
+        <div class="card stat"><div class="big" id="rEnt">0,00 €</div><div class="cap">Totale entrate</div><div class="foot" id="rEntD"></div></div>
+        <div class="card stat"><div class="big" id="rUsc">0,00 €</div><div class="cap">Totale uscite</div><div class="foot" id="rUscD"></div></div>
+        <div class="card stat"><div class="big" id="rNet">0,00 €</div><div class="cap">Netto</div></div>
+      </div>
+      <div class="cards2">
+        <div class="card pad"><h2>Riepilogo mensile</h2><div id="regMonthly"></div></div>
+        <div class="card pad"><h2>Dettaglio del periodo</h2><div class="rows" id="regDetail"></div></div>
+      </div>
+      <h2 style="font-family:var(--serif);font-size:1.9rem;margin:0 0 12px;font-weight:400">Righe registrate</h2>
+      <div id="regList"></div>
     </section>
 
     <!-- MAGAZZINO -->
@@ -472,12 +495,36 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
   </form>
 </dialog>
 
-<div id="qrSheet" aria-hidden="true"></div>
+<dialog id="dlgReg">
+  <form class="dlg" id="regFrm" method="dialog" autocomplete="off">
+    <h2 id="regTitle">Nuova riga</h2>
+    <div class="grid">
+      <div><label for="rgData">Data *</label><input id="rgData" type="date" required></div>
+      <div><label for="rgDesc">Descrizione</label><input id="rgDesc" placeholder="Es. Serata del martedì"></div>
+      <div class="full"><label style="font-size:.95rem;color:var(--soft)">Entrate (€)</label></div>
+      <div><label for="rgCarte">Incassi Carte/Bancomat</label><input id="rgCarte" inputmode="decimal" placeholder="0,00"></div>
+      <div><label for="rgCont">Incassi Contanti</label><input id="rgCont" inputmode="decimal" placeholder="0,00"></div>
+      <div class="full"><label for="rgTess">Vendita Tessere</label><input id="rgTess" inputmode="decimal" placeholder="0,00"></div>
+      <div class="full"><label style="font-size:.95rem;color:var(--soft)">Uscite (€)</label></div>
+      <div><label for="rgAlc">Uscite Alcolici</label><input id="rgAlc" inputmode="decimal" placeholder="0,00"></div>
+      <div><label for="rgCibo">Uscite Cibo</label><input id="rgCibo" inputmode="decimal" placeholder="0,00"></div>
+      <div><label for="rgGian">Giancarlo</label><input id="rgGian" inputmode="decimal" placeholder="0,00"></div>
+      <div><label for="rgMaria">Maria Grazia</label><input id="rgMaria" inputmode="decimal" placeholder="0,00"></div>
+      <div class="full"><label for="rgFabio">Fabio Sanghez</label><input id="rgFabio" inputmode="decimal" placeholder="0,00"></div>
+    </div>
+    <p class="foot" id="rgTot" style="margin-top:14px"></p>
+    <div class="actions">
+      <button type="button" class="btn danger left" id="rgDel" hidden>Elimina</button>
+      <button type="button" class="btn" id="rgCancel">Annulla</button>
+      <button type="submit" class="btn primary">Salva</button>
+    </div>
+  </form>
+</dialog>
+
 <dialog id="dlgSheet"><div class="dlg"><h2 id="sheetTitle"></h2><div id="sheetBody"></div><div class="actions"><button type="button" class="btn" id="sheetClose">Chiudi</button></div></div></dialog>
 
 <div id="toast" role="status"></div>
 
-<script src="qrcode.js"></script>
 <script>
 (function(){
 'use strict';
@@ -510,8 +557,8 @@ function putMany(arr){ return tx('readwrite',function(s){ arr.forEach(function(o
 function delOne(id){ return tx('readwrite',function(s){return s.delete(id);}); }
 
 /* Dati del locale (prenotazioni, tavoli, soci…): una voce per chiave nello store "kv" */
-var mem={ books:[], members:[], tables:null, zones:null, qrBase:'', poster:null, open:null };
-var KV={ books:'prenotazioni', members:'soci', tables:'tavoli', zones:'zone', qrBase:'qrBase', poster:'locandina', open:'aperto' };
+var mem={ books:[], members:[], tables:null, zones:null, poster:null, open:null, registro:[] };
+var KV={ books:'prenotazioni', members:'soci', tables:'tavoli', zones:'zone', poster:'locandina', open:'aperto', registro:'registro' };
 function kvAll(){
   return new Promise(function(res,rej){
     var t=db.transaction('kv','readonly'), q=t.objectStore('kv').getAll();
@@ -586,7 +633,7 @@ function dupKey(o){ return [o.fattura,o.nome,o.data,o.costoNetto].join('|').toLo
 function fmtDate(s){ if(!s) return ''; var p=s.split('-'); return p.length===3?p[2]+'/'+p[1]+'/'+p[0]:s; }
 
 /* ---------- Navigazione ---------- */
-var VIEWS=['panoramica','prenotazioni','tavoli','evento','soci','magazzino','backup'];
+var VIEWS=['panoramica','prenotazioni','tavoli','evento','soci','registro','magazzino','backup'];
 function show(v){
   if(VIEWS.indexOf(v)<0) v='panoramica';
   VIEWS.forEach(function(x){ $('v-'+x).classList.toggle('on',x===v); });
@@ -828,9 +875,18 @@ $('fileImport').addEventListener('change',function(ev){
         if(nm) saves.push('members');
         msg.push(nm+' tessere');
       }
+      if(Array.isArray(data[KV.registro])){
+        var rid={}, nr=0; mem.registro.forEach(function(r){ rid[r.id]=1; });
+        data[KV.registro].forEach(function(r){
+          if(!r||!r.id||!r.data||rid[r.id]) return; rid[r.id]=1; nr++;
+          var o={id:String(r.id),data:String(r.data),descrizione:String(r.descrizione||'')};
+          REG_IN.concat(REG_OUT).forEach(function(c){ o[c[0]]=r2(num(r[c[0]])); }); mem.registro.push(o);
+        });
+        if(nr) saves.push('registro');
+        msg.push(nr+' righe di registro');
+      }
       if(Array.isArray(data[KV.tables])&&data[KV.tables].length){ mem.tables=data[KV.tables]; saves.push('tables'); msg.push('piantina dei tavoli'); }
       if(Array.isArray(data[KV.zones])&&data[KV.zones].length){ mem.zones=data[KV.zones]; saves.push('zones'); }
-      if(typeof data[KV.qrBase]==='string'){ mem.qrBase=data[KV.qrBase]; saves.push('qrBase'); }
       if(data[KV.poster]&&data[KV.poster].img){ mem.poster=data[KV.poster]; saves.push('poster'); }
       if(typeof data[KV.open]==='boolean'){ mem.open=data[KV.open]; saves.push('open'); }
     }
@@ -896,6 +952,7 @@ function renderLocale(){
   if(v==='tavoli') renderTables();
   if(v==='evento') renderEvent();
   if(v==='soci') renderSoci();
+  if(v==='registro') renderRegistro();
 }
 window.renderLocale=renderLocale;
 Array.prototype.forEach.call(document.querySelectorAll('[data-go]'),function(b){ b.addEventListener('click',function(){ show(b.getAttribute('data-go')); }); });
@@ -1044,8 +1101,6 @@ $('manForm').addEventListener('submit',function(e){
 
 /* ---- Tavoli e QR ---- */
 var floor=$('floor'), drag=null;
-function qrUrl(t){ var base=(mem.qrBase||'https://www.indirizzo-del-sito.it').replace(/\/+$/,''); return base+'/?tavolo='+t.n; }
-function qrSvg(text){ try{ var q=qrcode(0,'M'); q.addData(text); q.make(); return q.createSvgTag({cellSize:6,margin:2,scalable:true}); }catch(e){ return ''; } }
 function floorDates(){
   var s=$('floorDate'), keep=s.value||adm.date; clearEl(s);
   upcomingDates().forEach(function(ds){ s.appendChild(el('option',{value:ds},longDate(pd(ds))+(typeOf(ds)==='evento'?' (concerto)':''))); });
@@ -1071,14 +1126,12 @@ function renderTables(){
   });
   var tot=mem.tables.reduce(function(a,t){ return a+(+t.seats||0); },0);
   $('seatTotal').textContent=mem.tables.length+(mem.tables.length===1?' tavolo, ':' tavoli, ')+tot+' posti a sedere';
-  $('qrBase').value=mem.qrBase||'';
-  $('qrBaseHint').textContent=mem.qrBase?('I QR aprono: '+qrUrl({n:'N'})):'Finché l\'indirizzo è vuoto i QR puntano a un indirizzo di prova: ricordati di inserirlo prima di stamparli.';
   renderTside(ds);
 }
 function renderTside(ds){
   var box=clearEl($('tside')), t=adm.sel?tableById(adm.sel):null;
-  if(!t){ box.appendChild(el('h3',null,'Seleziona un tavolo')); box.appendChild(el('p',{class:'muted'},'Tocca un tavolo nella piantina per vedere chi lo occupa, cambiare i posti e scaricare il suo QR.')); return; }
-  var b=tableBooking(t.id,ds), url=qrUrl(t);
+  if(!t){ box.appendChild(el('h3',null,'Seleziona un tavolo')); box.appendChild(el('p',{class:'muted'},'Tocca un tavolo nella piantina per vedere chi lo occupa e cambiare numero, posti e forma.')); return; }
+  var b=tableBooking(t.id,ds);
   box.appendChild(el('h3',null,'Tavolo '+t.n));
   var p=el('p',{class:'muted'}); if(b){ p.appendChild(document.createTextNode('Occupato da ')); p.appendChild(el('b',null,b.name)); p.appendChild(document.createTextNode(', '+b.people+' persone')); } else p.textContent='Libero in questa serata';
   box.appendChild(p);
@@ -1088,10 +1141,7 @@ function renderTside(ds){
   g.appendChild(a1); g.appendChild(a2); box.appendChild(g);
   var f=el('div',{style:'margin-bottom:6px'}); f.appendChild(el('label',{for:'tsShape'},'Forma'));
   var sh=el('select',{id:'tsShape'}); [['tondo','Tondo'],['quadrato','Quadrato'],['lungo','Lungo']].forEach(function(o){ sh.appendChild(el('option',{value:o[0]},o[1])); }); sh.value=t.shape; f.appendChild(sh); box.appendChild(f);
-  var qb=el('div',{class:'qrbox','aria-label':'Codice QR del tavolo '+t.n}); qb.innerHTML=qrSvg(url); box.appendChild(qb);
-  box.appendChild(el('p',{class:'qr-url'},url));
   var bt=el('div',{class:'btns'});
-  bt.appendChild(btn('mini','Scarica il QR',function(){ downloadQr(t,url); },{id:'tsDl'}));
   bt.appendChild(btn('mini danger','Elimina tavolo',function(){
     if(!confirm('Eliminare il tavolo '+t.n+'?')) return;
     mem.tables=mem.tables.filter(function(x){ return x.id!==t.id; });
@@ -1105,28 +1155,11 @@ function renderTside(ds){
   }
   iN.addEventListener('change',upd); iS.addEventListener('change',upd); sh.addEventListener('change',upd);
 }
-function downloadQr(t,url){
-  var q=qrcode(0,'M'); q.addData(url); q.make();
-  var c=document.createElement('canvas'), m=q.getModuleCount(), cell=16, pad=4*cell, size=m*cell+pad*2;
-  c.width=size; c.height=size+90;
-  var g=c.getContext('2d'); g.fillStyle='#fff'; g.fillRect(0,0,c.width,c.height); g.fillStyle='#000';
-  for(var r=0;r<m;r++) for(var k=0;k<m;k++) if(q.isDark(r,k)) g.fillRect(pad+k*cell,pad+r*cell,cell,cell);
-  g.font='600 44px Inter, sans-serif'; g.textAlign='center'; g.fillText('Tavolo '+t.n,size/2,size+56);
-  c.toBlob(function(bl){
-    var a=document.createElement('a'); a.href=URL.createObjectURL(bl); a.download='qr-tavolo-'+t.n+'.png';
-    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); },1500);
-    toast('QR salvato nella cartella Download.');
-  },'image/png');
-}
 $('floorDate').addEventListener('change',renderTables);
 $('layoutToggle').addEventListener('click',function(){ adm.edit=!adm.edit; renderTables(); });
 $('addTable').addEventListener('click',function(){
   var n=mem.tables.reduce(function(a,t){ return Math.max(a,t.n); },0)+1, t={id:'t'+newId(),n:n,seats:4,shape:'tondo',x:50,y:44};
   mem.tables.push(t); adm.sel=t.id; adm.edit=true; kvSave('tables'); renderTables();
-});
-$('qrBase').addEventListener('change',function(){
-  var v=this.value.trim(); if(v&&!/^https?:\/\//i.test(v)) v='https://'+v;
-  mem.qrBase=v; kvSave('qrBase'); renderTables();
 });
 floor.addEventListener('pointerdown',function(e){
   var t=e.target.closest('.tb,.zone'); if(!t) return;
@@ -1145,19 +1178,107 @@ floor.addEventListener('pointermove',function(e){
 });
 function endDrag(){ if(!drag) return; drag=null; kvSave('tables'); kvSave('zones'); renderTables(); }
 floor.addEventListener('pointerup',endDrag); floor.addEventListener('pointercancel',endDrag);
-$('printQr').addEventListener('click',function(){
-  var sheet=clearEl($('qrSheet')), prev=el('div',{style:'display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px'});
-  mem.tables.slice().sort(function(a,b){ return a.n-b.n; }).forEach(function(t){
-    function card(){
-      var c=el('div',{class:'qcard'}); c.appendChild(el('img',{class:'lg',src:'logo.png',alt:''}));
-      c.appendChild(el('b',null,'Tavolo '+t.n)); var w=el('div',{class:'qw'}); w.innerHTML=qrSvg(qrUrl(t)); c.appendChild(w);
-      c.appendChild(el('small',null,'Inquadra il codice con la fotocamera')); return c;
-    }
-    sheet.appendChild(card());
-    var pc=card(); pc.style.cssText='background:#0B131D;border-radius:12px;padding:12px;text-align:center'; pc.querySelector('img').style.height='34px'; pc.querySelector('.qw').style.cssText='background:#fff;padding:6px;border-radius:8px;width:120px;margin:8px auto'; pc.querySelector('b').style.cssText='display:block;font-family:var(--serif);font-weight:400;font-size:1.4rem'; pc.querySelector('small').style.cssText='display:block;font-size:.72rem;color:#9aa5b8'; prev.appendChild(pc);
+
+/* ---- Registro entrate e uscite ---- */
+var REG_IN=[['carte','Incassi Carte/Bancomat','rgCarte'],['contanti','Incassi Contanti','rgCont'],['tessere','Vendita Tessere','rgTess']];
+var REG_OUT=[['alcolici','Uscite Alcolici','rgAlc'],['cibo','Uscite Cibo','rgCibo'],['giancarlo','Giancarlo','rgGian'],['mariagrazia','Maria Grazia','rgMaria'],['fabio','Fabio Sanghez','rgFabio']];
+var rg={year:new Date().getFullYear(),month:0,editId:null};
+function rgIn(r){ return REG_IN.reduce(function(a,c){ return a+num(r[c[0]]); },0); }
+function rgOut(r){ return REG_OUT.reduce(function(a,c){ return a+num(r[c[0]]); },0); }
+function rgRows(){
+  return mem.registro.filter(function(r){
+    if(!r.data||r.data.slice(0,4)!==String(rg.year)) return false;
+    return !rg.month||+r.data.slice(5,7)===rg.month;
+  }).sort(function(a,b){ return b.data.localeCompare(a.data); });
+}
+function renderRegistro(){
+  var years={}; years[new Date().getFullYear()]=1; years[rg.year]=1;
+  mem.registro.forEach(function(r){ if(r.data) years[r.data.slice(0,4)]=1; });
+  var ys=$('regYear'); clearEl(ys);
+  Object.keys(years).sort().forEach(function(y){ ys.appendChild(el('option',{value:y},y)); }); ys.value=String(rg.year);
+  var ms=$('regMonth'); clearEl(ms); ms.appendChild(el('option',{value:'0'},'Tutto l\'anno'));
+  MONTHS_FULL.forEach(function(m,i){ ms.appendChild(el('option',{value:String(i+1)},m.charAt(0).toUpperCase()+m.slice(1))); }); ms.value=String(rg.month);
+
+  var rows=rgRows(), tin=0, tout=0, sums={};
+  REG_IN.concat(REG_OUT).forEach(function(c){ sums[c[0]]=0; });
+  rows.forEach(function(r){ tin+=rgIn(r); tout+=rgOut(r); REG_IN.concat(REG_OUT).forEach(function(c){ sums[c[0]]+=num(r[c[0]]); }); });
+  $('rEnt').textContent=eur.format(tin); $('rUsc').textContent=eur.format(tout);
+  $('rNet').textContent=eur.format(tin-tout); $('rNet').style.color=tin-tout<0?'var(--danger)':'';
+  $('rEntD').textContent=rows.length+(rows.length===1?' riga':' righe')+' nel periodo';
+  $('rUscD').textContent='';
+
+  var det=clearEl($('regDetail'));
+  function drow(label,v,bold){ var r=el('div',{class:'rowi'}); r.appendChild(el(bold?'b':'span',null,label)); r.appendChild(el('div',{class:'r'},eur.format(v))); det.appendChild(r); }
+  REG_IN.forEach(function(c){ drow(c[1],sums[c[0]]); }); drow('Totale entrate',tin,true);
+  REG_OUT.forEach(function(c){ drow(c[1],sums[c[0]]); }); drow('Totale uscite',tout,true); drow('NETTO',tin-tout,true);
+
+  var mo=clearEl($('regMonthly')), yin=new Array(12).fill(0), yout=new Array(12).fill(0);
+  mem.registro.forEach(function(r){ if(r.data&&r.data.slice(0,4)===String(rg.year)){ var i=+r.data.slice(5,7)-1; yin[i]+=rgIn(r); yout[i]+=rgOut(r); } });
+  var t=el('table'), th=el('thead'), hr=el('tr');
+  [['Mese',''],['Entrate','num'],['Uscite','num'],['Netto','num']].forEach(function(c){ hr.appendChild(el('th',c[1]?{class:c[1]}:null,c[0])); });
+  th.appendChild(hr); t.appendChild(th); var tb=el('tbody'), ai=0, ao=0;
+  MONTHS_FULL.forEach(function(m,i){
+    ai+=yin[i]; ao+=yout[i];
+    var tr=el('tr'); tr.appendChild(el('td',{'data-l':'Mese'},m.charAt(0).toUpperCase()+m.slice(1)));
+    tr.appendChild(el('td',{class:'num','data-l':'Entrate'},eur.format(yin[i]))); tr.appendChild(el('td',{class:'num','data-l':'Uscite'},eur.format(yout[i])));
+    tr.appendChild(el('td',{class:'num','data-l':'Netto'},eur.format(yin[i]-yout[i]))); tb.appendChild(tr);
   });
-  var pb=btn('btn primary','Stampa',function(){ try{ window.print(); }catch(x){} });
-  openSheet('QR da stampare ('+mem.tables.length+' tavoli)',[pb,el('p',{class:'muted',style:'margin:14px 0'},'Esce un foglio A4 con due cartoncini per riga.'),prev]);
+  var tt=el('tr'); tt.appendChild(el('td',null,'Totale anno')); tt.firstChild.style.fontWeight='600';
+  [ai,ao,ai-ao].forEach(function(v,k){ var d=el('td',{class:'num','data-l':['Entrate','Uscite','Netto'][k]},eur.format(v)); d.style.fontWeight='600'; tt.appendChild(d); });
+  tb.appendChild(tt); t.appendChild(tb); mo.appendChild(t);
+
+  var host=clearEl($('regList'));
+  if(!rows.length){ host.appendChild(el('div',{class:'card empty'},'Nessuna riga in questo periodo. Tocca "+ Aggiungi riga" per registrare incassi e spese.')); return; }
+  var wrap=el('div',{class:'card tablewrap'}), tl=el('table'), h2=el('thead'), r2=el('tr');
+  [['Data',''],['Descrizione',''],['Entrate','num'],['Uscite','num'],['Netto','num']].forEach(function(c){ r2.appendChild(el('th',c[1]?{class:c[1]}:null,c[0])); });
+  h2.appendChild(r2); tl.appendChild(h2); var b2=el('tbody');
+  rows.forEach(function(r){
+    var tr=el('tr',{class:'row'}), i=rgIn(r), o=rgOut(r);
+    tr.appendChild(el('td',{'data-l':'Data'},fmtDate(r.data)));
+    var d=el('td',{'data-l':'Descrizione'},r.descrizione||'—'); tr.appendChild(d);
+    tr.appendChild(el('td',{class:'num','data-l':'Entrate'},eur.format(i))); tr.appendChild(el('td',{class:'num','data-l':'Uscite'},eur.format(o)));
+    tr.appendChild(el('td',{class:'num','data-l':'Netto'},eur.format(i-o)));
+    tr.addEventListener('click',function(){ openReg(r); }); b2.appendChild(tr);
+  });
+  tl.appendChild(b2); wrap.appendChild(tl); host.appendChild(wrap);
+}
+function regTot(){
+  var i=0,o=0; REG_IN.forEach(function(c){ i+=num($(c[2]).value); }); REG_OUT.forEach(function(c){ o+=num($(c[2]).value); });
+  $('rgTot').textContent='Entrate '+eur.format(i)+' · Uscite '+eur.format(o)+' · Netto '+eur.format(i-o);
+}
+function openReg(r){
+  rg.editId=r?r.id:null; $('regTitle').textContent=r?'Modifica riga':'Nuova riga'; $('rgDel').hidden=!r;
+  $('rgData').value=r?r.data:todayISO(); $('rgDesc').value=r?(r.descrizione||''):'';
+  REG_IN.concat(REG_OUT).forEach(function(c){ $(c[2]).value=r&&num(r[c[0]])?fmtN(num(r[c[0]])):''; });
+  regTot(); $('dlgReg').showModal();
+}
+REG_IN.concat(REG_OUT).forEach(function(c){ $(c[2]).addEventListener('input',regTot); });
+$('regAdd').addEventListener('click',function(){ openReg(null); });
+$('rgCancel').addEventListener('click',function(){ $('dlgReg').close(); });
+$('regFrm').addEventListener('submit',function(e){
+  e.preventDefault();
+  if(!$('rgData').value){ toast('Inserisci la data.'); return; }
+  var o={id:rg.editId||newId(),data:$('rgData').value,descrizione:$('rgDesc').value.trim()};
+  REG_IN.concat(REG_OUT).forEach(function(c){ o[c[0]]=r2(num($(c[2]).value)); });
+  var i=mem.registro.findIndex(function(x){ return x.id===o.id; });
+  if(i>-1) mem.registro[i]=o; else mem.registro.push(o);
+  rg.year=+o.data.slice(0,4);
+  kvSave('registro'); $('dlgReg').close(); renderRegistro(); toast('Salvato.');
+});
+$('rgDel').addEventListener('click',function(){
+  if(!rg.editId||!confirm('Eliminare questa riga dal registro?')) return;
+  mem.registro=mem.registro.filter(function(x){ return x.id!==rg.editId; }); kvSave('registro'); $('dlgReg').close(); renderRegistro(); toast('Eliminata.');
+});
+$('regYear').addEventListener('change',function(){ rg.year=+this.value; renderRegistro(); });
+$('regMonth').addEventListener('change',function(){ rg.month=+this.value; renderRegistro(); });
+$('regCsv').addEventListener('click',function(){
+  var head=['Data','Descrizione'].concat(REG_IN.map(function(c){return c[1]+' (€)';}),['Totale Entrate (€)'],REG_OUT.map(function(c){return c[1]+' (€)';}),['Totale Uscite (€)','Netto (€)']);
+  var lines=[head.join(';')];
+  mem.registro.slice().sort(function(a,b){ return a.data.localeCompare(b.data); }).forEach(function(r){
+    lines.push([fmtDate(r.data),r.descrizione].concat(REG_IN.map(function(c){return fmtN(num(r[c[0]]));}),[fmtN(rgIn(r))],REG_OUT.map(function(c){return fmtN(num(r[c[0]]));}),[fmtN(rgOut(r)),fmtN(rgIn(r)-rgOut(r))]).map(csvCell).join(';'));
+  });
+  download('registro-'+todayISO()+'.csv','text/csv;charset=utf-8','﻿'+lines.join('\r\n'));
+  toast('Registro salvato nella cartella Download.');
 });
 
 /* ---- Evento del mese ---- */
