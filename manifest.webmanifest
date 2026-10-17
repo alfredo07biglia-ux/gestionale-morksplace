@@ -1,7 +1,7 @@
 {
-  "name": "Magazzino",
-  "short_name": "Magazzino",
-  "description": "Magazzino del locale, dati salvati solo su questo dispositivo",
+  "name": "Gestionale Workspace",
+  "short_name": "Gestionale Workspace",
+  "description": "Gestionale del locale, dati salvati solo su questo dispositivo",
   "lang": "it",
   "start_url": "./",
   "scope": "./",
