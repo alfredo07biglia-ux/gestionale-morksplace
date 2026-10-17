@@ -1008,6 +1008,7 @@ $('fileImport').addEventListener('change',function(ev){
         msg.push(nr+' righe di registro');
       }
       if(Array.isArray(data[KV.menu])){
+        if(data.sostituisciMenu===true){ if(!confirm('Questo file SOSTITUISCE il menu attuale ('+mem.menu.length+' drink, comprese le tue modifiche) con '+data[KV.menu].length+' drink. Continuare?')) return; mem.menu=[]; saves.push('menu'); }
         var mids={}, nmn=0; mem.menu.forEach(function(d){ mids[d.id]=1; });
         data[KV.menu].forEach(function(d){
           if(!d||!d.id||!d.nome||mids[d.id]) return; mids[d.id]=1; nmn++;
@@ -1401,8 +1402,8 @@ $('dsDel').addEventListener('click',function(){
 });
 
 /* ---- Menu e margini ---- */
-var MENU_CATS=['Cocktail','Pestati','Long drink','Analcolici','Gin Tonic','Rum','Whisky','Vodka','Cognac e Pisco','Amari e Liquori','Vini'];
-var mn={cat:'Cocktail',editId:null};
+var MENU_CATS=['Pre Dinner','Cocktail','Long drink','Pestati','Analcolici','Gin Tonic','Rum','Whisky','Vodka','Cognac e Pisco','Amari e Liquori','Birra e bibite','Vini'];
+var mn={cat:'Pre Dinner',editId:null};
 function prodById(id){ for(var i=0;i<items.length;i++) if(items[i].id===id) return items[i]; return null; }
 function ingCost(g){
   if(g.pid){ var p=prodById(g.pid); if(!p||!p.volumeMl) return null; return p.costoNetto*num(g.ml)/p.volumeMl; }
