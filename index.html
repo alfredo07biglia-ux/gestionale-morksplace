@@ -57,6 +57,7 @@ h1,h2{margin:0;font-weight:400}
 main{min-width:0}
 .notice{border:1px solid rgba(227,165,74,.45);background:linear-gradient(145deg,rgba(80,52,20,.35),rgba(40,28,24,.4));border-radius:12px;padding:15px 20px;margin-bottom:22px;color:#f1dcb4;font-size:.98rem}
 .notice[hidden]{display:none}
+[hidden]{display:none!important}
 
 .head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:26px}
 h1{font-family:var(--serif);font-size:clamp(2.8rem,5.2vw,3.9rem);line-height:1;letter-spacing:-.01em}
@@ -521,6 +522,20 @@ dialog::backdrop{background:rgba(3,6,14,.68)}
           </div>
         </div>
       </div>
+      <div class="card pad" style="margin-top:18px">
+        <h2>Sincronizzazione online</h2>
+        <p>Salva una copia di tutti i dati nel database online protetto e riceve le prenotazioni dal sito. L'app continua a funzionare anche senza internet: appena torna la connessione, si allinea da sola.</p>
+        <p id="syncState" style="margin:10px 0"></p>
+        <form id="syncForm" class="btns" style="flex-wrap:wrap;gap:10px;align-items:center">
+          <input id="syncEmail" type="email" autocomplete="username" placeholder="Email" style="max-width:260px" required>
+          <input id="syncPw" type="password" autocomplete="current-password" placeholder="Password" style="max-width:220px" required>
+          <button class="btn primary" id="syncBtn" type="submit">Accedi</button>
+        </form>
+        <div id="syncActions" class="btns" hidden>
+          <button class="btn primary" id="syncNowBtn" type="button">Sincronizza ora</button>
+          <button class="btn" id="syncOutBtn" type="button">Esci</button>
+        </div>
+      </div>
     </section>
   </main>
 </div>
@@ -646,9 +661,9 @@ function tx(mode,fn){
   });
 }
 function loadAll(){ return tx('readonly',function(s){return s.getAll();}).then(function(r){ items=r||[]; }); }
-function putOne(o){ return tx('readwrite',function(s){return s.put(o);}); }
-function putMany(arr){ return tx('readwrite',function(s){ arr.forEach(function(o){s.put(o);}); }); }
-function delOne(id){ return tx('readwrite',function(s){return s.delete(id);}); }
+function putOne(o){ return tx('readwrite',function(s){return s.put(o);}).then(function(r){ markDirty('prodotti'); return r; }); }
+function putMany(arr){ return tx('readwrite',function(s){ arr.forEach(function(o){s.put(o);}); }).then(function(r){ markDirty('prodotti'); return r; }); }
+function delOne(id){ return tx('readwrite',function(s){return s.delete(id);}).then(function(r){ markDirty('prodotti'); return r; }); }
 
 /* Dati del locale (prenotazioni, tavoli, soci…): una voce per chiave nello store "kv" */
 var mem={ books:[], members:[], tables:null, zones:null, poster:null, open:null, registro:[], menu:[], scadenze:[], imp:{ivaVendite:0} };
@@ -659,12 +674,15 @@ function kvAll(){
     t.oncomplete=function(){ res(q.result||[]); }; t.onerror=t.onabort=function(){ rej(t.error); };
   });
 }
-function kvSave(name){
+function kvPut(name){
   return new Promise(function(res,rej){
     var t=db.transaction('kv','readwrite');
     t.objectStore('kv').put({k:KV[name],v:mem[name]});
     t.oncomplete=function(){ res(); }; t.onerror=t.onabort=function(){ rej(t.error); };
-  }).catch(function(){ toast('Errore nel salvataggio.'); });
+  });
+}
+function kvSave(name){
+  return kvPut(name).then(function(){ markDirty(name); }).catch(function(){ toast('Errore nel salvataggio.'); });
 }
 function kvLoad(){
   return kvAll().then(function(rows){
@@ -1690,10 +1708,167 @@ $('memberForm').addEventListener('submit',function(e){
 });
 
 /* ---------- Avvio ---------- */
+
+/* ---------- Sincronizzazione online (Supabase) ----------
+   L'app resta "locale prima": legge e scrive sempre sul tablet e, quando c'è internet e l'accesso, allinea i dati online. */
+var SB_URL='https://ioaifwmurjlgrkpmjaxi.supabase.co', SB_KEY='sb_publishable_JbHpR373pyoLA_UsLkBNmQ_QrOc7KdN';
+var DOCS=['members','tables','zones','poster','open','registro','menu','scadenze','imp'];
+var syncRunning=false, syncAgain=false, syncTimer=null, syncMsg='';
+function jget(k,d){ try{ var v=JSON.parse(lsGet(k)||'null'); return v==null?d:v; }catch(e){ return d; } }
+function jset(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function sess(){ return jget('sbSess',null); }
+function dirtyList(){ return jget('sbDirty',[]); }
+function markDirty(name){
+  var d=dirtyList(); if(d.indexOf(name)<0){ d.push(name); jset('sbDirty',d); }
+  schedSync();
+}
+function schedSync(){ clearTimeout(syncTimer); syncTimer=setTimeout(syncNow,1500); }
+function setSyncUI(){
+  var el1=$('syncState'); if(!el1) return;
+  var s=sess();
+  el1.textContent=s?('Collegato come '+(s.email||'')+'. '+(syncMsg||'')):'Non collegato: i dati restano solo su questo tablet.';
+  $('syncForm').hidden=!!s; $('syncActions').hidden=!s;
+}
+function sbReq(path,opts,noRetry){
+  opts=opts||{};
+  var s=sess();
+  var h={'apikey':SB_KEY,'Content-Type':'application/json'};
+  if(s&&s.access_token&&!opts.anon) h['Authorization']='Bearer '+s.access_token;
+  if(opts.headers) Object.keys(opts.headers).forEach(function(k){ h[k]=opts.headers[k]; });
+  return fetch(SB_URL+path,{method:opts.method||'GET',headers:h,body:opts.body}).then(function(r){
+    if(r.status===401&&!noRetry&&s&&s.refresh_token&&!opts.anon){
+      return refreshSess().then(function(){ return sbReq(path,opts,true); });
+    }
+    if(!r.ok) return r.text().then(function(t){ var e=new Error('HTTP '+r.status+' '+t.slice(0,160)); e.status=r.status; throw e; });
+    return r.status===204?null:r.text().then(function(t){ return t?JSON.parse(t):null; });
+  });
+}
+function storeTok(j,email){
+  jset('sbSess',{access_token:j.access_token,refresh_token:j.refresh_token,email:email||(j.user&&j.user.email)||(sess()&&sess().email)||'',exp:Date.now()+(j.expires_in||3600)*1000});
+}
+function refreshSess(){
+  var s=sess(); if(!s||!s.refresh_token) return Promise.reject(new Error('no session'));
+  return sbReq('/auth/v1/token?grant_type=refresh_token',{method:'POST',anon:true,body:JSON.stringify({refresh_token:s.refresh_token})},true)
+    .then(function(j){ storeTok(j,s.email); })
+    .catch(function(e){ if(e.status===400||e.status===401){ try{localStorage.removeItem('sbSess');}catch(x){} } throw e; });
+}
+function ensureTok(){
+  var s=sess(); if(!s) return Promise.reject(new Error('no session'));
+  if(s.exp-Date.now()<90000) return refreshSess();
+  return Promise.resolve();
+}
+function sbLogin(email,pw){
+  return sbReq('/auth/v1/token?grant_type=password',{method:'POST',anon:true,body:JSON.stringify({email:email,password:pw})},true)
+    .then(function(j){ storeTok(j,email); });
+}
+function bookToRow(b){
+  return {id:b.id,tipo:b.type==='evento'?'evento':'tavolo',tessera:b.card||'',nome:b.name,telefono:b.phone||'',data:b.date,persone:Math.max(1,parseInt(b.people,10)||1),nota:b.note||'',stato:b.status==='confermata'?'confermata':'attesa',tavolo:b.table||null,origine:String(b.id).charAt(0)==='w'?'sito':'gestore',updated_at:new Date().toISOString()};
+}
+function rowToBook(r){
+  return {id:r.id,type:r.tipo==='evento'?'evento':'tavolo',card:r.tessera||'',name:r.nome,phone:r.telefono||'',date:r.data,people:String(r.persone||1),note:r.nota||'',status:r.stato==='confermata'?'confermata':'attesa',table:r.tavolo||null};
+}
+function docValue(name){ return name==='prodotti'?items:mem[name]; }
+function pushDirty(){
+  var dirty=dirtyList(); if(!dirty.length) return Promise.resolve();
+  var stamps=jget('sbStamp',{}), jobs=[], done=[];
+  var docs=dirty.filter(function(n){ return n!=='books'; });
+  if(docs.length){
+    var now=new Date().toISOString();
+    var body=docs.map(function(n){ return {k:n==='prodotti'?'prodotti':KV[n],v:docValue(n),updated_at:now}; });
+    jobs.push(sbReq('/rest/v1/doc?on_conflict=k',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=representation'},body:JSON.stringify(body)}).then(function(rows){
+      (rows||[]).forEach(function(r){ stamps[r.k]=r.updated_at; }); jset('sbStamp',stamps); done=done.concat(docs);
+    }));
+  }
+  if(dirty.indexOf('books')>-1){
+    var cur={}; mem.books.forEach(function(b){ cur[b.id]=1; });
+    var gone=jget('sbBookIds',[]).filter(function(id){ return !cur[id]; });
+    var j=Promise.resolve();
+    if(gone.length) j=j.then(function(){ return sbReq('/rest/v1/prenotazioni?id=in.('+gone.map(encodeURIComponent).join(',')+')',{method:'DELETE'}); });
+    if(mem.books.length) j=j.then(function(){ return sbReq('/rest/v1/prenotazioni?on_conflict=id',{method:'POST',headers:{'Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify(mem.books.map(bookToRow))}); });
+    jobs.push(j.then(function(){ jset('sbBookIds',Object.keys(cur)); jset('sbBooksInit',1); done.push('books'); }));
+  }
+  return Promise.all(jobs).then(function(){
+    jset('sbDirty',dirtyList().filter(function(n){ return done.indexOf(n)<0; }));
+  });
+}
+function applyDoc(name,v){
+  if(name==='prodotti'){
+    var arr=Array.isArray(v)?v:[];
+    return tx('readwrite',function(s){ s.clear(); arr.forEach(function(o){ s.put(o); }); }).then(loadAll);
+  }
+  mem[name]=v; return kvPut(name);
+}
+function pullAll(){
+  var stamps=jget('sbStamp',{}), changed=false, dirty=dirtyList(), toUpload=[];
+  return sbReq('/rest/v1/doc?select=k,v,updated_at').then(function(rows){
+    var by={}; (rows||[]).forEach(function(r){ by[r.k]=r; });
+    var names=['prodotti'].concat(DOCS), chain=Promise.resolve();
+    names.forEach(function(n){
+      var key=n==='prodotti'?'prodotti':KV[n], r=by[key];
+      if(dirty.indexOf(n)>-1) return;
+      if(!r){
+        var has=n==='prodotti'?items.length>0:(Array.isArray(mem[n])?mem[n].length>0:mem[n]!=null&&mem[n]!==false);
+        if(has) toUpload.push(n);
+        return;
+      }
+      if(stamps[key]===r.updated_at) return;
+      chain=chain.then(function(){ return applyDoc(n,r.v); }).then(function(){ stamps[key]=r.updated_at; changed=true; });
+    });
+    return chain;
+  }).then(function(){
+    jset('sbStamp',stamps);
+    if(dirtyList().indexOf('books')>-1) return;
+    return sbReq('/rest/v1/prenotazioni?select=*&order=data.asc').then(function(rows){
+      rows=rows||[];
+      if(!rows.length&&mem.books.length&&!jget('sbBooksInit',0)){ toUpload.push('books'); return; }
+      var nb=rows.map(rowToBook);
+      if(JSON.stringify(nb)!==JSON.stringify(mem.books)){ mem.books=nb; changed=true; return kvPut('books'); }
+    }).then(function(){ jset('sbBookIds',mem.books.map(function(b){ return b.id; })); });
+  }).then(function(){
+    if(toUpload.length){ var d=dirtyList(); toUpload.forEach(function(n){ if(d.indexOf(n)<0) d.push(n); }); jset('sbDirty',d); return pushDirty(); }
+  }).then(function(){ if(changed) render(); });
+}
+function syncNow(){
+  if(!sess()){ setSyncUI(); return Promise.resolve(); }
+  if(syncRunning){ syncAgain=true; return Promise.resolve(); }
+  if(!navigator.onLine){ syncMsg='Senza internet: le modifiche verranno inviate appena torna la connessione.'; setSyncUI(); return Promise.resolve(); }
+  syncRunning=true; syncMsg='Sincronizzazione in corso…'; setSyncUI();
+  return ensureTok().then(pushDirty).then(pullAll).then(function(){
+    var t=new Date(); syncMsg='Allineato alle '+String(t.getHours()).padStart(2,'0')+':'+String(t.getMinutes()).padStart(2,'0')+'.';
+  }).catch(function(e){
+    syncMsg=(e&&e.status===401)?'Accesso scaduto: rientra con email e password.':'Non riesco a sincronizzare ora, riprovo tra poco.';
+  }).then(function(){
+    syncRunning=false; setSyncUI();
+    if(syncAgain){ syncAgain=false; schedSync(); }
+  });
+}
+function initSync(){
+  var f=$('syncForm');
+  f.addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var em=$('syncEmail').value.trim().toLowerCase(), pw=$('syncPw').value;
+    if(!em||!pw) return;
+    $('syncBtn').disabled=true; syncMsg='';
+    sbLogin(em,pw).then(function(){ $('syncPw').value=''; toast('Accesso eseguito.'); syncNow(); })
+      .catch(function(){ toast('Email o password non corrette.'); })
+      .then(function(){ $('syncBtn').disabled=false; setSyncUI(); });
+  });
+  $('syncNowBtn').addEventListener('click',function(){ syncNow(); });
+  $('syncOutBtn').addEventListener('click',function(){
+    if(!confirm('Uscire dall\'accesso online? I dati restano su questo tablet.')) return;
+    try{ localStorage.removeItem('sbSess'); }catch(e){} syncMsg=''; setSyncUI();
+  });
+  window.addEventListener('online',function(){ syncNow(); });
+  document.addEventListener('visibilitychange',function(){ if(!document.hidden) syncNow(); });
+  setInterval(function(){ if(!document.hidden) syncNow(); },60000);
+  setSyncUI();
+  if(sess()) syncNow();
+}
+
 var start=(location.hash||'').replace('#','');
 if(VIEWS.indexOf(start)>-1) show(start);
 openDB().then(function(d){ db=d; return loadAll(); }).then(kvLoad).then(function(){
-  render();
+  render(); initSync();
   if(navigator.storage&&navigator.storage.persist){ navigator.storage.persist().catch(function(){}); }
 }).catch(function(){
   $('list').appendChild(el('div',{class:'card empty'},'Impossibile aprire il database locale. Prova a riaprire l\'app da Chrome.'));
