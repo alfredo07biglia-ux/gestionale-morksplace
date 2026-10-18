@@ -1,4 +1,4 @@
-const CACHE = 'gestionale-v11';
+const CACHE = 'gestionale-v12';
 const FILES = [
   './', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './logo.png',
   './fonts/inter-latin-400-normal.woff2', './fonts/inter-latin-500-normal.woff2', './fonts/inter-latin-600-normal.woff2',

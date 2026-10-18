@@ -1051,6 +1051,10 @@ $('fileImport').addEventListener('change',function(ev){
         if(data.sostituisciMenu===true){ if(!confirm('Questo file SOSTITUISCE il menu attuale ('+mem.menu.length+' drink, comprese le tue modifiche) con '+data[KV.menu].length+' drink. Continuare?')) return; mem.menu=[]; saves.push('menu'); }
         var mids={}, nmn=0; mem.menu.forEach(function(d){ mids[d.id]=1; });
         data[KV.menu].forEach(function(d){
+          if(d&&d.id&&d.nome&&mids[d.id]&&data.aggiornaMenu===true){
+            var ix=mem.menu.findIndex(function(x){ return x.id===String(d.id); });
+            if(ix>-1){ mem.menu[ix]={id:String(d.id),cat:String(d.cat||mem.menu[ix].cat),nome:String(d.nome),prezzo:num(d.prezzo),ing:Array.isArray(d.ing)&&d.ing.length?d.ing:mem.menu[ix].ing}; nmn++; return; }
+          }
           if(!d||!d.id||!d.nome||mids[d.id]) return; mids[d.id]=1; nmn++;
           mem.menu.push({id:String(d.id),cat:String(d.cat||'Cocktail'),nome:String(d.nome),prezzo:num(d.prezzo),ing:Array.isArray(d.ing)?d.ing:[]});
         });
