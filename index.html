@@ -1087,7 +1087,9 @@ function upcomingDates(){
   [nextEvent(),eventAfter(nextEvent())].forEach(function(d){ list.push(isoD(d)); });
   return list.filter(function(v,i,a){ return a.indexOf(v)===i; }).sort();
 }
-function taken(date,type){ return mem.books.filter(function(b){ return b.date===date&&(b.type||'tavolo')===type; }).reduce(function(a,b){ return a+(parseInt(b.people,10)||0); },0); }
+function live(b){ return !(b.pay==='scaduta'||(b.pay==='da_pagare'&&b.hold&&Date.parse(b.hold)<Date.now())); }
+function daConfermare(b){ return b.status==='attesa'&&b.pay!=='da_pagare'&&b.pay!=='scaduta'; }
+function taken(date,type){ return mem.books.filter(function(b){ return live(b)&&b.date===date&&(b.type||'tavolo')===type; }).reduce(function(a,b){ return a+(parseInt(b.people,10)||0); },0); }
 function left(date,type){ return Math.max(0,CAP[type]-taken(date,type)); }
 function normCard(s){ return String(s||'').toUpperCase().replace(/[^A-Z0-9]/g,''); }
 function isMember(s){ var c=normCard(s); return c.length>=4&&mem.members.some(function(m){ return normCard(m.card)===c; }); }
@@ -1111,7 +1113,7 @@ function meter(host,date,type){
 var adm={date:null,filter:'all',sel:null,edit:false};
 
 function renderLocale(){
-  var pend=mem.books.filter(function(b){ return b.status==='attesa'; }).length;
+  var pend=mem.books.filter(daConfermare).length;
   $('navPend').textContent=pend||'';
   var on=document.querySelector('.view.on'), v=on?on.id.slice(2):'panoramica';
   renderHome();
@@ -1167,12 +1169,17 @@ function sendWhatsApp(b){
 /* ---- Panoramica ---- */
 var sw=$('openSwitch');
 sw.addEventListener('click',function(){ mem.open=!mem.open; kvSave('open'); renderHome(); });
-function chipFor(b){ return el('span',{class:'chip'+(b.status==='confermata'?' ok2':'')},b.status==='confermata'?'Confermata':'Da confermare'); }
+function chipFor(b){
+  if(b.pay==='pagata') return el('span',{class:'chip ok2'},'Pagata');
+  if(b.pay==='scaduta'||(b.pay==='da_pagare'&&!live(b))) return el('span',{class:'chip'},'Pagamento non completato');
+  if(b.pay==='da_pagare') return el('span',{class:'chip'},'In attesa di pagamento');
+  return el('span',{class:'chip'+(b.status==='confermata'?' ok2':'')},b.status==='confermata'?'Confermata':'Da confermare');
+}
 function renderHome(){
   sw.setAttribute('aria-checked',String(!!mem.open)); $('openLabel').textContent=mem.open?'Aperto stasera':'Chiuso stasera';
   var nn=upcomingNights(1)[0], ne=nextEvent();
   var nextDs=isoD(nn)<isoD(ne)?isoD(nn):isoD(ne), nextType=typeOf(nextDs);
-  $('sPending').textContent=String(mem.books.filter(function(b){ return b.status==='attesa'; }).length);
+  $('sPending').textContent=String(mem.books.filter(daConfermare).length);
   $('sNight').textContent=String(left(isoD(nn),'tavolo')); $('sNightLbl').textContent='posti liberi '+shortDate(nn)+', su 35';
   $('sEvent').textContent=String(left(isoD(ne),'evento')); $('sEventLbl').textContent='posti liberi al concerto di '+shortDate(ne)+', su 50';
   $('sSoci').textContent=String(mem.members.length);
@@ -1212,7 +1219,7 @@ function renderPren(){
   meter($('prenSeats'),adm.date,typeOf(adm.date));
   Array.prototype.forEach.call(document.querySelectorAll('.seg button'),function(b){ b.classList.toggle('on',b.getAttribute('data-filter')===adm.filter); });
   var host=clearEl($('bookList'));
-  var list=mem.books.filter(function(b){ return b.date===adm.date&&(adm.filter==='all'||b.status==='attesa'); });
+  var list=mem.books.filter(function(b){ return b.date===adm.date&&(adm.filter==='all'||daConfermare(b)); });
   if(!list.length){ host.appendChild(el('div',{class:'empty'},adm.filter==='attesa'?'Nessuna prenotazione da confermare per questa serata.':'Nessuna prenotazione per questa serata. Tocca "+ Nuova prenotazione" per aggiungerne una.')); }
   list.forEach(function(b){ host.appendChild(bookRow(b)); });
   fillManDates();
@@ -1223,13 +1230,16 @@ function bookRow(b){
   var nm=el('b',null,b.name); l.appendChild(nm);
   l.appendChild(el('span',{class:'muted'},' · '+b.people+(+b.people===1?' persona':' persone')));
   var s1=el('div'); s1.appendChild(el('small',null,(b.phone||'Senza telefono')+' · tessera ARCI '+b.card)); l.appendChild(s1);
+  if(b.pay==='pagata'&&b.paid){ var s4=el('div'); s4.appendChild(el('small',null,'Pagato online: '+(b.paid/100).toLocaleString('it-IT',{minimumFractionDigits:2})+' €')); l.appendChild(s4); }
   if(b.note){ var s2=el('div'); s2.appendChild(el('small',null,b.note)); l.appendChild(s2); }
   if(over){ var s3=el('div'); s3.appendChild(el('small',{class:'over'},'Il tavolo '+t.n+' ha '+t.seats+' posti per '+b.people+' persone')); l.appendChild(s3); }
   var acts=el('div',{class:'acts'});
   var sel=el('select',{class:'tsel','aria-label':'Tavolo per '+b.name}); sel.appendChild(tableOptions(b.date,b.id)); sel.value=b.table||'';
   sel.addEventListener('change',function(){ b.table=sel.value||null; kvSave('books'); renderPren(); });
   acts.appendChild(sel); acts.appendChild(chipFor(b));
-  if(b.status==='attesa'){
+  if(b.pay==='da_pagare'||b.pay==='scaduta'){
+    /* in attesa del pagamento online: nessuna conferma manuale */
+  }else if(b.status==='attesa'){
     acts.appendChild(btn('mini wa','Conferma su WhatsApp',function(){ b.status='confermata'; kvSave('books'); renderLocale(); sendWhatsApp(b); }));
   }else if(waNumber(b.phone)){
     acts.appendChild(btn('mini wa','Rimanda',function(){ sendWhatsApp(b); }));
@@ -1762,10 +1772,10 @@ function sbLogin(email,pw){
     .then(function(j){ storeTok(j,email); });
 }
 function bookToRow(b){
-  return {id:b.id,tipo:b.type==='evento'?'evento':'tavolo',tessera:b.card||'',nome:b.name,telefono:b.phone||'',data:b.date,persone:Math.max(1,parseInt(b.people,10)||1),nota:b.note||'',stato:b.status==='confermata'?'confermata':'attesa',tavolo:b.table||null,origine:String(b.id).charAt(0)==='w'?'sito':'gestore',updated_at:new Date().toISOString()};
+  return {id:b.id,tipo:b.type==='evento'?'evento':'tavolo',tessera:b.card||'',nome:b.name,telefono:b.phone||'',data:b.date,persone:Math.max(1,parseInt(b.people,10)||1),nota:b.note||'',stato:(b.status==='confermata'||b.pay==='pagata')?'confermata':'attesa',tavolo:b.table||null,origine:String(b.id).charAt(0)==='w'?'sito':'gestore',updated_at:new Date().toISOString()};
 }
 function rowToBook(r){
-  return {id:r.id,type:r.tipo==='evento'?'evento':'tavolo',card:r.tessera||'',name:r.nome,phone:r.telefono||'',date:r.data,people:String(r.persone||1),note:r.nota||'',status:r.stato==='confermata'?'confermata':'attesa',table:r.tavolo||null};
+  return {id:r.id,type:r.tipo==='evento'?'evento':'tavolo',card:r.tessera||'',name:r.nome,phone:r.telefono||'',date:r.data,people:String(r.persone||1),note:r.nota||'',status:r.stato==='confermata'?'confermata':'attesa',table:r.tavolo||null,pay:r.pagamento||'nessuno',hold:r.scade_at||null,paid:r.importo_cent||0};
 }
 function docValue(name){ return name==='prodotti'?items:mem[name]; }
 function pushDirty(){
