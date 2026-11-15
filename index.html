@@ -1141,8 +1141,8 @@ function waText(b){
   var when=longDate(pd(b.date)).toLowerCase(), t=b.table?tableById(b.table):null, n=+b.people||1;
   var first=String(b.name||'').trim().split(/\s+/)[0]||'';
   var body=b.type==='evento'
-    ?'confermiamo il tuo posto al concerto di '+when+' dalle 22:00, per '+n+(n===1?' persona':' persone')
-    :'confermiamo il tuo tavolo per '+when+' dalle 22:00, per '+n+(n===1?' persona':' persone')+(t?' (tavolo '+t.n+')':'');
+    ?'confermiamo il tuo posto al concerto di '+when+' dalle 20:30, per '+n+(n===1?' persona':' persone')
+    :'confermiamo il tuo tavolo per '+when+' dalle 20:30, per '+n+(n===1?' persona':' persone')+(t?' (tavolo '+t.n+')':'');
   return 'Ciao '+first+', '+body+'. Ricordati di portare la tessera ARCI. A presto da Mork\'s Place!';
 }
 function openSheet(title,nodes){
